@@ -1,10 +1,22 @@
 import { createBrowserRouter } from "react-router";
-import Home from "@/page/home";
+import DashBoard from "@/components/layouts/DashBoard";
+import HomePage from "@/page/home";
+import DetailPage from "@/page/detail";
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Home />,
+    element: <DashBoard />,
+    children: [
+      {
+        index: true,
+        element: <HomePage />,
+      },
+      {
+        path: "detail/:id",
+        element: <DetailPage />,
+      },
+    ],
   },
 ]);
 
