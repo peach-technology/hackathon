@@ -9,7 +9,7 @@ import {
 import router from "./router";
 
 const turnkeyConfig: TurnkeyProviderConfig = {
-  organizationId: import.meta.env.VITE_ORGANIZATION_ID!,
+  organizationId: import.meta.env.VITE_TURNKEY_ORGANIZATION_ID!,
   authProxyConfigId: import.meta.env.VITE_AUTH_PROXY_CONFIG_ID!,
 };
 
