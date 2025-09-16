@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button";
 import { AuthState, useTurnkey } from "@turnkey/react-wallet-kit";
 import { Avatar, AvatarImage } from "../ui/avatar";
 import {
@@ -10,9 +9,11 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { Link } from "react-router";
+import LoginCompoent from "./LoginCompoent";
 
 const Header = () => {
-  const { authState, user, handleLogin, logout } = useTurnkey();
+  const { authState, user, logout } = useTurnkey();
+
   return (
     <header className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
       <div className="mx-auto flex h-16 items-center justify-between px-4">
@@ -20,7 +21,7 @@ const Header = () => {
           <div className="flsex items-center space-x-2">
             <Link to="/">
               <div className="h-8 w-16 bg-primary rounded-lg flex items-center justify-center">
-                <span className="font-bold text-sm">Huam</span>
+                <span className="font-bold text-sm text-white">Huam</span>
               </div>
             </Link>
           </div>
@@ -40,22 +41,13 @@ const Header = () => {
               <DropdownMenuContent>
                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  variant="destructive"
-                  onClick={() => logout()}
-                >
+                <DropdownMenuItem variant="destructive" onClick={() => logout()}>
                   Logout
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <Button
-              size="sm"
-              className="inline-flex cursor-pointer text-white"
-              onClick={() => handleLogin()}
-            >
-              Connect Wallet
-            </Button>
+            <LoginCompoent />
           )}
         </div>
       </div>
