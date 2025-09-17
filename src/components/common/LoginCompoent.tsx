@@ -1,14 +1,28 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "../ui/dialog";
 import { Input } from "../ui/input";
 import { ArrowRightCircle, Mail } from "lucide-react";
-import { Form, FormControl, FormField, FormItem, FormMessage } from "../ui/form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+} from "../ui/form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "../ui/input-otp";
 import { Button } from "@/components/ui/button";
 import { OtpType, useTurnkey } from "@turnkey/react-wallet-kit";
+import { toast } from "sonner";
 
 const formSchema = z.object({
   email: z.email({
@@ -19,7 +33,14 @@ const formSchema = z.object({
 type Step = "closed" | "email" | "otp";
 
 const LoginCompoent = () => {
-  const { initOtp, completeOtp, fetchOrCreateP256ApiKeyUser } = useTurnkey();
+  const {
+    initOtp,
+    completeOtp,
+    fetchOrCreateP256ApiKeyUser,
+    fetchUser,
+    httpClient,
+    logout,
+  } = useTurnkey();
 
   const [otpId, setOtpId] = useState<string | null>(null);
   const [otpCode, setOtpCode] = useState("");
@@ -33,15 +54,18 @@ const LoginCompoent = () => {
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    const otpId = await initOtp({ contact: values.email, otpType: OtpType.Email });
+    const otpId = await initOtp({
+      contact: values.email,
+      otpType: OtpType.Email,
+    });
     setOtpId(otpId);
     setDialog("otp");
-    alert("이메일로 OTP를 보냈습니다");
+    toast("이메일로 OTP를 보냈습니다");
   };
 
   const handleCompleteOtp = async () => {
     if (!otpId) {
-      alert("OTP 발급 오류");
+      toast("OTP 발급 오류");
       return;
     }
 
@@ -53,22 +77,37 @@ const LoginCompoent = () => {
         otpCode,
       });
 
-      await fetchOrCreateP256ApiKeyUser({
-        publicKey: import.meta.env.VITE_TURNKEY_PUBLIC_KEY,
-        createParams: { userName: "Delegated Account", apiKeyName: "Delegated API Key" },
+      const freshUser = await fetchUser();
+
+      const delegatedUser = await fetchOrCreateP256ApiKeyUser({
+        publicKey: import.meta.env.VITE_TURNKEY_PUBLIC_KEY!,
+        createParams: {
+          userName: "Delegated Account",
+          apiKeyName: "Delegated API Key",
+        },
       });
 
+      await httpClient?.updateRootQuorum({
+        timestampMs: String(Date.now()),
+        threshold: 1,
+        userIds: [freshUser.userId, delegatedUser.userId],
+      });
+
+      toast("로그인 성공");
       setDialog("closed");
-      alert("로그인 성공");
     } catch (e) {
       console.log(e);
-      alert("에러");
+      logout();
+      toast("로그인 에러가 발생했습니다.");
     }
   };
 
   return (
     <>
-      <Dialog open={dialog === "email"} onOpenChange={(o) => setDialog(o ? "email" : "closed")}>
+      <Dialog
+        open={dialog === "email"}
+        onOpenChange={(o) => setDialog(o ? "email" : "closed")}
+      >
         <DialogTrigger asChild>
           <Button size="sm" className="inline-flex cursor-pointer text-white">
             Connect Wallet
@@ -90,8 +129,16 @@ const LoginCompoent = () => {
                     <FormItem>
                       <FormControl>
                         <div className="relative">
-                          <Input placeholder="Enter your email" className="pr-12" enterKeyHint="send" {...field} />
-                          <button type="submit" className="absolute right-2 top-1/2 -translate-y-1/2 ">
+                          <Input
+                            placeholder="Enter your email"
+                            className="pr-12"
+                            enterKeyHint="send"
+                            {...field}
+                          />
+                          <button
+                            type="submit"
+                            className="absolute right-2 top-1/2 -translate-y-1/2 "
+                          >
                             <ArrowRightCircle />
                           </button>
                         </div>
@@ -109,7 +156,10 @@ const LoginCompoent = () => {
         </DialogContent>
       </Dialog>
 
-      <Dialog open={dialog === "otp"} onOpenChange={(o) => setDialog(o ? "otp" : "closed")}>
+      <Dialog
+        open={dialog === "otp"}
+        onOpenChange={(o) => setDialog(o ? "otp" : "closed")}
+      >
         <DialogContent className="max-w-[90%] sm:max-w-[416px]">
           <DialogHeader>
             <DialogTitle className="text-center">EMAIL - OTP</DialogTitle>
@@ -123,7 +173,12 @@ const LoginCompoent = () => {
               <p className="text-sm">{form.getValues("email")}</p>
             </div>
             <div className="flex justify-center">
-              <InputOTP maxLength={6} value={otpCode} onChange={setOtpCode} onComplete={handleCompleteOtp}>
+              <InputOTP
+                maxLength={6}
+                value={otpCode}
+                onChange={setOtpCode}
+                onComplete={handleCompleteOtp}
+              >
                 <InputOTPGroup>
                   <InputOTPSlot index={0} />
                   <InputOTPSlot index={1} />

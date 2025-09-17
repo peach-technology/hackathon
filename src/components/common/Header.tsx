@@ -4,8 +4,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { Link } from "react-router";
@@ -39,9 +37,10 @@ const Header = () => {
                 </div>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
-                <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem variant="destructive" onClick={() => logout()}>
+                <DropdownMenuItem
+                  variant="destructive"
+                  onClick={() => logout()}
+                >
                   Logout
                 </DropdownMenuItem>
               </DropdownMenuContent>
