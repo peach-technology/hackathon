@@ -43,7 +43,7 @@ const App = () => {
       <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
         <QueryClientProvider client={queryClient}>
           <RouterProvider router={router} />
-          <Toaster />
+          <Toaster position="top-right" />
         </QueryClientProvider>
       </ThemeProvider>
     </TurnkeyProvider>

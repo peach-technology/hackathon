@@ -60,12 +60,12 @@ const LoginCompoent = () => {
     });
     setOtpId(otpId);
     setDialog("otp");
-    toast("이메일로 OTP를 보냈습니다");
+    toast.success("이메일로 OTP를 보냈습니다");
   };
 
   const handleCompleteOtp = async () => {
     if (!otpId) {
-      toast("OTP 발급 오류");
+      toast.error("OTP 발급 오류");
       return;
     }
 
@@ -93,12 +93,12 @@ const LoginCompoent = () => {
         userIds: [freshUser.userId, delegatedUser.userId],
       });
 
-      toast("로그인 성공");
+      toast.success("로그인 성공");
       setDialog("closed");
     } catch (e) {
       console.log(e);
       logout();
-      toast("로그인 에러가 발생했습니다.");
+      toast.error("로그인 에러가 발생했습니다.");
     }
   };
 
