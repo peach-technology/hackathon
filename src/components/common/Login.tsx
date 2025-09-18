@@ -23,6 +23,8 @@ import { InputOTP, InputOTPGroup, InputOTPSlot } from "../ui/input-otp";
 import { Button } from "@/components/ui/button";
 import { OtpType, useTurnkey } from "@turnkey/react-wallet-kit";
 import { toast } from "sonner";
+import { Spinner } from "../ui/shadcn-io/spinner";
+import useLoadStore from "@/store/useLoadStore";
 
 const formSchema = z.object({
   email: z.email({
@@ -41,6 +43,8 @@ const LoginCompoent = () => {
     httpClient,
     logout,
   } = useTurnkey();
+
+  const setLoading = useLoadStore((state) => state.setLoading);
 
   const [otpId, setOtpId] = useState<string | null>(null);
   const [otpCode, setOtpCode] = useState("");
@@ -70,6 +74,7 @@ const LoginCompoent = () => {
     }
 
     try {
+      setLoading(true);
       await completeOtp({
         contact: form.getValues("email"),
         otpId,
@@ -94,11 +99,13 @@ const LoginCompoent = () => {
       });
 
       toast.success("로그인 성공");
-      setDialog("closed");
     } catch (e) {
       console.log(e);
       logout();
       toast.error("로그인 에러가 발생했습니다.");
+    } finally {
+      setLoading(false);
+      setDialog("closed");
     }
   };
 
@@ -135,12 +142,19 @@ const LoginCompoent = () => {
                             enterKeyHint="send"
                             {...field}
                           />
-                          <button
-                            type="submit"
-                            className="absolute right-2 top-1/2 -translate-y-1/2 "
-                          >
-                            <ArrowRightCircle />
-                          </button>
+                          {form.formState.isSubmitting ? (
+                            <Spinner
+                              variant="default"
+                              className="absolute right-2 top-1/2 -translate-y-1/2 "
+                            />
+                          ) : (
+                            <button
+                              type="submit"
+                              className="absolute right-2 top-1/2 -translate-y-1/2 "
+                            >
+                              <ArrowRightCircle />
+                            </button>
+                          )}
                         </div>
                       </FormControl>
                       <FormMessage />

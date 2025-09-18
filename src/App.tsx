@@ -8,6 +8,7 @@ import {
 } from "@turnkey/react-wallet-kit";
 import router from "./router";
 import { Toaster } from "./components/ui/sonner";
+import GlobalLoading from "./components/layouts/GlobalLoading";
 
 const turnkeyConfig: TurnkeyProviderConfig = {
   organizationId: import.meta.env.VITE_TURNKEY_ORGANIZATION_ID!,
@@ -43,6 +44,7 @@ const App = () => {
       <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
         <QueryClientProvider client={queryClient}>
           <RouterProvider router={router} />
+          <GlobalLoading />
           <Toaster position="top-right" />
         </QueryClientProvider>
       </ThemeProvider>

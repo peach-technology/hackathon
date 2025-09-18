@@ -350,6 +350,18 @@ const DetailPage = () => {
                   </Button>
                 </div>
               </div>
+
+              <Card>
+                <CardContent>SHORT</CardContent>
+              </Card>
+
+              <Card>
+                <CardContent>LONG</CardContent>
+              </Card>
+
+              <Button className="w-full h-12 text-white cursor-pointer">
+                qqq
+              </Button>
             </TabsContent>
 
             <TabsContent value="sell" className="space-y-5">
@@ -380,6 +392,18 @@ const DetailPage = () => {
                   </Button>
                 </div>
               </div>
+
+              <Card>
+                <CardContent>SHORT</CardContent>
+              </Card>
+
+              <Card>
+                <CardContent>LONG</CardContent>
+              </Card>
+
+              <Button className="w-full h-12 text-white cursor-pointer">
+                qqq
+              </Button>
             </TabsContent>
           </Tabs>
         )}

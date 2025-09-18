@@ -8,9 +8,20 @@ import {
 } from "../ui/dropdown-menu";
 import { Link } from "react-router";
 import Login from "./Login";
+import useLoadStore from "@/store/useLoadStore";
 
 const Header = () => {
   const { authState, user, logout } = useTurnkey();
+  const setLoading = useLoadStore((state) => state.setLoading);
+
+  const logoutHandler = () => {
+    try {
+      setLoading(true);
+      logout();
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
@@ -35,10 +46,7 @@ const Header = () => {
                 </div>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
-                <DropdownMenuItem
-                  variant="destructive"
-                  onClick={() => logout()}
-                >
+                <DropdownMenuItem variant="destructive" onClick={logoutHandler}>
                   Logout
                 </DropdownMenuItem>
               </DropdownMenuContent>
