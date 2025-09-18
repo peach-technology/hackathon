@@ -121,8 +121,6 @@ const DetailPage = () => {
   if (poolDataPending || poolHistoryPending) return null; // 로딩화면 혹은 스켈레톤
   if (poolDataStatus === "error" || poolHistoryStatus === "error") return null; // 에러 화면
 
-  console.log(poolHistory);
-
   return (
     <div className="flex gap-8 relative items-start">
       <div className="flex-2 space-y-16">
@@ -204,7 +202,7 @@ const DetailPage = () => {
 
         <div className="grid gap-5">
           <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight">
-            Risk
+            Position
           </h3>
           <div className="grid grid-cols-2 gap-2">
             <Card></Card>
@@ -212,6 +210,7 @@ const DetailPage = () => {
           </div>
         </div>
       </div>
+
       <div className="flex-1 max-w-sm sticky top-18">
         <Tabs defaultValue="buy" className="w-[400px]">
           <TabsList className="bg-transparent">

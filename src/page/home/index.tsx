@@ -18,6 +18,7 @@ import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { useNavigate } from "react-router";
 import { usePoolListQuery, type PoolType } from "@/hooks/api/pool";
 import { toast } from "sonner";
+import { Skeleton } from "@/components/ui/skeleton";
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const columns: ColumnDef<PoolType>[] = [
@@ -85,8 +86,7 @@ const HomePage = () => {
     }
   }, [status, error]);
 
-  if (isPending) return null; // 로딩화면 혹은 스켈레톤
-  if (status === "error") return null; // 에러 화면
+  if (status === "error") return <p className="text-center">Error</p>; // 에러 화면
 
   return (
     <Card>
@@ -94,55 +94,86 @@ const HomePage = () => {
         <div className="overflow-hidden rounded-md border">
           <Table>
             <TableHeader>
-              {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id}>
-                  {headerGroup.headers.map((header) => {
-                    return (
-                      <TableHead key={header.id}>
-                        {header.isPlaceholder
-                          ? null
-                          : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
-                      </TableHead>
-                    );
-                  })}
-                </TableRow>
-              ))}
+              {isPending && (
+                <>
+                  {columns.map((_, index) => (
+                    <TableHead key={index}>
+                      <Skeleton className="h-[20px] w-full rounded-full" />
+                    </TableHead>
+                  ))}
+                </>
+              )}
+              {!isPending && (
+                <>
+                  {table.getHeaderGroups().map((headerGroup) => (
+                    <TableRow key={headerGroup.id}>
+                      {headerGroup.headers.map((header) => {
+                        return (
+                          <TableHead key={header.id}>
+                            {header.isPlaceholder
+                              ? null
+                              : flexRender(
+                                  header.column.columnDef.header,
+                                  header.getContext()
+                                )}
+                          </TableHead>
+                        );
+                      })}
+                    </TableRow>
+                  ))}
+                </>
+              )}
             </TableHeader>
             <TableBody>
-              {table.getRowModel().rows?.length ? (
-                table.getRowModel().rows.map((row) => (
-                  <TableRow
-                    key={row.id}
-                    data-state={row.getIsSelected() && "selected"}
-                    className="cursor-pointer"
-                    onClick={() =>
-                      navigate(
-                        `/detail/${row.original.network_name}/${row.original.pool_address}`
-                      )
-                    }
-                  >
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
+              {isPending && (
+                <>
+                  {Array.from({ length: 20 }).map((_, rowIndex) => (
+                    <TableRow key={rowIndex}>
+                      {columns.map((_, colIndex) => (
+                        <TableCell key={colIndex}>
+                          <Skeleton className="h-[20px] w-full rounded-full" />
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))}
+                </>
+              )}
+
+              {!isPending && (
+                <>
+                  {table.getRowModel().rows?.length ? (
+                    table.getRowModel().rows.map((row) => (
+                      <TableRow
+                        key={row.id}
+                        data-state={row.getIsSelected() && "selected"}
+                        className="cursor-pointer"
+                        onClick={() =>
+                          navigate(
+                            `/detail/${row.original.network_name}/${row.original.pool_address}`
+                          )
+                        }
+                      >
+                        {row.getVisibleCells().map((cell) => (
+                          <TableCell key={cell.id}>
+                            {flexRender(
+                              cell.column.columnDef.cell,
+                              cell.getContext()
+                            )}
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell
+                        colSpan={columns.length}
+                        className="h-24 text-center"
+                      >
+                        No results.
                       </TableCell>
-                    ))}
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell
-                    colSpan={columns.length}
-                    className="h-24 text-center"
-                  >
-                    No results.
-                  </TableCell>
-                </TableRow>
+                    </TableRow>
+                  )}
+                </>
               )}
             </TableBody>
           </Table>
