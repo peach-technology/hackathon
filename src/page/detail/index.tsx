@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
   ChartContainer,
+  ChartLegend,
+  ChartLegendContent,
   ChartTooltip,
   ChartTooltipContent,
   type ChartConfig,
@@ -16,32 +18,70 @@ import {
 } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  usePoolDetailQuery,
+  usePoolHistoryQuery,
+  type PoolHistoryChart,
+  type PoolHistoryType,
+} from "@/hooks/api/pool";
 import { DialogDescription } from "@radix-ui/react-dialog";
 import { ChevronRight } from "lucide-react";
-import { useState, type ChangeEvent } from "react";
-import { Bar, BarChart, XAxis } from "recharts";
+import { useEffect, useState, type ChangeEvent } from "react";
+import { useParams } from "react-router";
+import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
+import { toast } from "sonner";
+import dayjs from "dayjs";
+
+interface MergedHistoryRowType {
+  timestamp: string;
+  funding_apr?: number;
+  combined_apr?: number;
+  effective_apr?: number;
+}
+
+type AprKey = "funding_apr" | "combined_apr" | "effective_apr";
 
 const chartConfig = {
-  desktop: {
-    label: "Desktop",
-    color: "#2563eb",
+  visitors: {
+    label: "Visitors",
   },
-  mobile: {
-    label: "Mobile",
-    color: "#60a5fa",
+  funding_apr: {
+    label: "funding_apr",
+    color: "var(--chart-1)",
+  },
+  combined_apr: {
+    label: "combined_apr",
+    color: "var(--chart-2)",
+  },
+  effective_apr: {
+    label: "effective_apr",
+    color: "var(--chart-3)",
   },
 } satisfies ChartConfig;
 
-const chartData = [
-  { month: "January", desktop: 186, mobile: 80 },
-  { month: "February", desktop: 305, mobile: 200 },
-  { month: "March", desktop: 237, mobile: 120 },
-  { month: "April", desktop: 73, mobile: 190 },
-  { month: "May", desktop: 209, mobile: 130 },
-  { month: "June", desktop: 214, mobile: 140 },
-];
-
 const DetailPage = () => {
+  const { network, address } = useParams();
+
+  const {
+    // data: poolData,
+    isPending: poolDataPending,
+    status: poolDataStatus,
+    error: poolDataError,
+  } = usePoolDetailQuery(network, address);
+
+  const {
+    data: poolHistory,
+    isPending: poolHistoryPending,
+    status: poolHistoryStatus,
+    error: poolHistoryError,
+  } = usePoolHistoryQuery(network, address);
+
+  useEffect(() => {
+    if (poolDataStatus === "error" || poolHistoryStatus === "error") {
+      toast(poolDataError?.message || poolHistoryError?.message);
+    }
+  }, [poolDataStatus, poolHistoryStatus, poolDataError, poolHistoryError]);
+
   const [val, setVal] = useState("0");
 
   const onChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -53,23 +93,110 @@ const DetailPage = () => {
     setVal(digits);
   };
 
+  const mergeHistory = (
+    poolHistory: Omit<PoolHistoryType, "network" | "poolAddress">
+  ): MergedHistoryRowType[] => {
+    const map = new Map<string, MergedHistoryRowType>();
+
+    const add = (arr: PoolHistoryChart[], key: AprKey) => {
+      arr.forEach(({ timestamp, value }) => {
+        if (!map.has(timestamp)) {
+          map.set(timestamp, { timestamp });
+        }
+        const row = map.get(timestamp)!;
+        row[key] = value;
+      });
+    };
+
+    add(poolHistory.funding_apr, "funding_apr");
+    add(poolHistory.combined_apr, "combined_apr");
+    add(poolHistory.effective_apr, "effective_apr");
+
+    return Array.from(map.values()).sort(
+      (a, b) =>
+        new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+    );
+  };
+
+  if (poolDataPending || poolHistoryPending) return null; // 로딩화면 혹은 스켈레톤
+  if (poolDataStatus === "error" || poolHistoryStatus === "error") return null; // 에러 화면
+
+  console.log(poolHistory);
+
   return (
     <div className="flex gap-8 relative items-start">
       <div className="flex-2 space-y-16">
         <Card>
           <ChartContainer config={chartConfig}>
-            <BarChart accessibilityLayer data={chartData}>
+            <AreaChart data={mergeHistory(poolHistory)}>
+              <defs>
+                <linearGradient id="funding_apr" x1="0" y1="0" x2="0" y2="1">
+                  <stop
+                    offset="5%"
+                    stopColor="var(--color-desktop)"
+                    stopOpacity={0.8}
+                  />
+                  <stop
+                    offset="95%"
+                    stopColor="var(--color-desktop)"
+                    stopOpacity={0.1}
+                  />
+                </linearGradient>
+                <linearGradient id="combined_apr" x1="0" y1="0" x2="0" y2="1">
+                  <stop
+                    offset="5%"
+                    stopColor="var(--color-mobile)"
+                    stopOpacity={0.8}
+                  />
+                  <stop
+                    offset="95%"
+                    stopColor="var(--color-mobile)"
+                    stopOpacity={0.1}
+                  />
+                </linearGradient>
+                <linearGradient id="effective_apr" x1="0" y1="0" x2="0" y2="1">
+                  <stop
+                    offset="5%"
+                    stopColor="var(--color-desktop)"
+                    stopOpacity={0.8}
+                  />
+                  <stop
+                    offset="95%"
+                    stopColor="var(--color-desktop)"
+                    stopOpacity={0.1}
+                  />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" />
               <XAxis
-                dataKey="month"
+                dataKey="timestamp"
                 tickLine={false}
-                tickMargin={10}
                 axisLine={false}
-                tickFormatter={(value) => value.slice(0, 3)}
+                tickMargin={8}
+                minTickGap={32}
+                tickFormatter={(value) => dayjs(value).format("MMM D, HH:mm")}
               />
-              <ChartTooltip content={<ChartTooltipContent />} />
-              <Bar dataKey="desktop" fill="var(--color-desktop)" radius={4} />
-              <Bar dataKey="mobile" fill="var(--color-mobile)" radius={4} />
-            </BarChart>
+              <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
+              <Area
+                dataKey="funding_apr"
+                type="natural"
+                fill="url(#funding_apr)"
+                stroke="var(--chart-1)"
+              />
+              <Area
+                dataKey="combined_apr"
+                type="natural"
+                fill="url(#combined_apr)"
+                stroke="var(--chart-2)"
+              />
+              <Area
+                dataKey="effective_apr"
+                type="natural"
+                fill="url(#effective_apr)"
+                stroke="var(--chart-3)"
+              />
+              <ChartLegend content={<ChartLegendContent />} />
+            </AreaChart>
           </ChartContainer>
         </Card>
 
@@ -80,44 +207,8 @@ const DetailPage = () => {
             Risk
           </h3>
           <div className="grid grid-cols-2 gap-2">
-            <Card>
-              <ChartContainer config={chartConfig}>
-                <BarChart accessibilityLayer data={chartData}>
-                  <XAxis
-                    dataKey="month"
-                    tickLine={false}
-                    tickMargin={10}
-                    axisLine={false}
-                    tickFormatter={(value) => value.slice(0, 3)}
-                  />
-                  <Bar
-                    dataKey="desktop"
-                    fill="var(--color-desktop)"
-                    radius={4}
-                  />
-                  <Bar dataKey="mobile" fill="var(--color-mobile)" radius={4} />
-                </BarChart>
-              </ChartContainer>
-            </Card>
-            <Card>
-              <ChartContainer config={chartConfig}>
-                <BarChart accessibilityLayer data={chartData}>
-                  <XAxis
-                    dataKey="month"
-                    tickLine={false}
-                    tickMargin={10}
-                    axisLine={false}
-                    tickFormatter={(value) => value.slice(0, 3)}
-                  />
-                  <Bar
-                    dataKey="desktop"
-                    fill="var(--color-desktop)"
-                    radius={4}
-                  />
-                  <Bar dataKey="mobile" fill="var(--color-mobile)" radius={4} />
-                </BarChart>
-              </ChartContainer>
-            </Card>
+            <Card></Card>
+            <Card></Card>
           </div>
         </div>
       </div>

@@ -1,6 +1,10 @@
 import axiosBase from "axios";
 
-const axios = axiosBase.create();
+const axios = axiosBase.create({
+  headers: {
+    Authorization: import.meta.env.VITE_TOKEN!,
+  },
+});
 
 axios.interceptors.request.use(
   function (config) {
