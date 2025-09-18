@@ -22,6 +22,14 @@ import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
 import { toast } from "sonner";
 import dayjs from "dayjs";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Avatar, AvatarImage } from "@/components/ui/avatar";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 
 interface MergedHistoryRowType {
   timestamp: string;
@@ -54,7 +62,7 @@ const DetailPage = () => {
   const { network, address } = useParams();
 
   const {
-    // data: poolData,
+    data: poolData,
     isPending: poolDataPending,
     status: poolDataStatus,
     error: poolDataError,
@@ -116,107 +124,158 @@ const DetailPage = () => {
   return (
     <div className="flex gap-8 relative items-start">
       <div className="flex-2 space-y-16">
-        <Card>
-          <CardContent>
-            {isPending && <Skeleton className="h-[400px] rounded-3xl w-full" />}
-            {!isPending && (
-              <ChartContainer config={chartConfig} className="h-[400px] w-full">
-                <AreaChart data={mergeHistory(poolHistory)}>
-                  <defs>
-                    <linearGradient
-                      id="funding_apr"
-                      x1="0"
-                      y1="0"
-                      x2="0"
-                      y2="1"
-                    >
-                      <stop
-                        offset="5%"
-                        stopColor="var(--color-desktop)"
-                        stopOpacity={0.8}
-                      />
-                      <stop
-                        offset="95%"
-                        stopColor="var(--color-desktop)"
-                        stopOpacity={0.1}
-                      />
-                    </linearGradient>
-                    <linearGradient
-                      id="combined_apr"
-                      x1="0"
-                      y1="0"
-                      x2="0"
-                      y2="1"
-                    >
-                      <stop
-                        offset="5%"
-                        stopColor="var(--color-mobile)"
-                        stopOpacity={0.8}
-                      />
-                      <stop
-                        offset="95%"
-                        stopColor="var(--color-mobile)"
-                        stopOpacity={0.1}
-                      />
-                    </linearGradient>
-                    <linearGradient
-                      id="effective_apr"
-                      x1="0"
-                      y1="0"
-                      x2="0"
-                      y2="1"
-                    >
-                      <stop
-                        offset="5%"
-                        stopColor="var(--color-desktop)"
-                        stopOpacity={0.8}
-                      />
-                      <stop
-                        offset="95%"
-                        stopColor="var(--color-desktop)"
-                        stopOpacity={0.1}
-                      />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis
-                    dataKey="timestamp"
-                    tickLine={false}
-                    axisLine={false}
-                    tickMargin={8}
-                    minTickGap={32}
-                    tickFormatter={(value) =>
-                      dayjs(value).format("MMM D, HH:mm")
-                    }
-                  />
-                  <ChartTooltip
-                    cursor={false}
-                    content={<ChartTooltipContent />}
-                  />
-                  <Area
-                    dataKey="funding_apr"
-                    type="natural"
-                    fill="url(#funding_apr)"
-                    stroke="var(--chart-1)"
-                  />
-                  <Area
-                    dataKey="combined_apr"
-                    type="natural"
-                    fill="url(#combined_apr)"
-                    stroke="var(--chart-2)"
-                  />
-                  <Area
-                    dataKey="effective_apr"
-                    type="natural"
-                    fill="url(#effective_apr)"
-                    stroke="var(--chart-3)"
-                  />
-                  <ChartLegend content={<ChartLegendContent />} />
-                </AreaChart>
-              </ChartContainer>
+        <div className="space-y-5">
+          <Breadcrumb>
+            <BreadcrumbList>
+              <BreadcrumbItem>
+                <BreadcrumbLink href="/">Home</BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                {isPending ? (
+                  <Skeleton className="w-30 h-5" />
+                ) : (
+                  poolData?.pool_name
+                )}
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
+
+          <div className="flex items-center gap-2">
+            {isPending && (
+              <>
+                <Skeleton className=" rounded-full size-10" />{" "}
+                <Skeleton className="w-60 h-5" />
+              </>
             )}
-          </CardContent>
-        </Card>
+            {!isPending && (
+              <>
+                <div className="flex -space-x-4">
+                  <>
+                    {poolData?.token0_logo && (
+                      <Avatar>
+                        <AvatarImage src={poolData?.token0_logo} />
+                      </Avatar>
+                    )}
+                    {poolData?.token1_logo && (
+                      <Avatar>
+                        <AvatarImage src={poolData?.token1_logo} />
+                      </Avatar>
+                    )}
+                  </>
+                </div>
+                {poolData?.pool_name}
+              </>
+            )}
+          </div>
+
+          <Card>
+            <CardContent>
+              {isPending && (
+                <Skeleton className="h-[400px] rounded-3xl w-full" />
+              )}
+              {!isPending && (
+                <ChartContainer
+                  config={chartConfig}
+                  className="h-[400px] w-full"
+                >
+                  <AreaChart data={mergeHistory(poolHistory)}>
+                    <defs>
+                      <linearGradient
+                        id="funding_apr"
+                        x1="0"
+                        y1="0"
+                        x2="0"
+                        y2="1"
+                      >
+                        <stop
+                          offset="5%"
+                          stopColor="var(--color-desktop)"
+                          stopOpacity={0.8}
+                        />
+                        <stop
+                          offset="95%"
+                          stopColor="var(--color-desktop)"
+                          stopOpacity={0.1}
+                        />
+                      </linearGradient>
+                      <linearGradient
+                        id="combined_apr"
+                        x1="0"
+                        y1="0"
+                        x2="0"
+                        y2="1"
+                      >
+                        <stop
+                          offset="5%"
+                          stopColor="var(--color-mobile)"
+                          stopOpacity={0.8}
+                        />
+                        <stop
+                          offset="95%"
+                          stopColor="var(--color-mobile)"
+                          stopOpacity={0.1}
+                        />
+                      </linearGradient>
+                      <linearGradient
+                        id="effective_apr"
+                        x1="0"
+                        y1="0"
+                        x2="0"
+                        y2="1"
+                      >
+                        <stop
+                          offset="5%"
+                          stopColor="var(--color-desktop)"
+                          stopOpacity={0.8}
+                        />
+                        <stop
+                          offset="95%"
+                          stopColor="var(--color-desktop)"
+                          stopOpacity={0.1}
+                        />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis
+                      dataKey="timestamp"
+                      tickLine={false}
+                      axisLine={false}
+                      tickMargin={8}
+                      minTickGap={32}
+                      tickFormatter={(value) =>
+                        dayjs(value).format("MMM D, HH:mm")
+                      }
+                    />
+                    <ChartTooltip
+                      cursor={false}
+                      content={<ChartTooltipContent />}
+                    />
+                    <Area
+                      dataKey="funding_apr"
+                      type="natural"
+                      fill="url(#funding_apr)"
+                      stroke="var(--chart-1)"
+                    />
+                    <Area
+                      dataKey="combined_apr"
+                      type="natural"
+                      fill="url(#combined_apr)"
+                      stroke="var(--chart-2)"
+                    />
+                    <Area
+                      dataKey="effective_apr"
+                      type="natural"
+                      fill="url(#effective_apr)"
+                      stroke="var(--chart-3)"
+                    />
+                    <ChartLegend content={<ChartLegendContent />} />
+                  </AreaChart>
+                </ChartContainer>
+              )}
+            </CardContent>
+          </Card>
+        </div>
 
         <Separator />
 

@@ -7,7 +7,7 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { Link } from "react-router";
-import LoginCompoent from "./LoginCompoent";
+import Login from "./Login";
 
 const Header = () => {
   const { authState, user, logout } = useTurnkey();
@@ -18,9 +18,7 @@ const Header = () => {
         <div className="flex items-center space-x-4">
           <div className="flsex items-center space-x-2">
             <Link to="/">
-              <div className="h-8 w-16 bg-primary rounded-lg flex items-center justify-center">
-                <span className="font-bold text-sm text-white">Huam</span>
-              </div>
+              <span className="font-bold text-xl text-white">Huam</span>
             </Link>
           </div>
         </div>
@@ -46,7 +44,7 @@ const Header = () => {
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <LoginCompoent />
+            <Login />
           )}
         </div>
       </div>

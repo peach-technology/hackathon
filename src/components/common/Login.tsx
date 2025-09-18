@@ -110,7 +110,7 @@ const LoginCompoent = () => {
       >
         <DialogTrigger asChild>
           <Button size="sm" className="inline-flex cursor-pointer text-white">
-            Connect Wallet
+            Log in or sign up
           </Button>
         </DialogTrigger>
         <DialogContent className="max-w-[90%] sm:max-w-[416px]">
