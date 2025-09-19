@@ -4,8 +4,7 @@ const axios = axiosBase.create({
   headers: {
     Authorization: import.meta.env.VITE_TOKEN!,
   },
-  baseURL:
-    process.env.NODE_ENV === "production" ? "https://huam.fly.dev" : "/api",
+  baseURL: process.env.NODE_ENV === "production" ? "https://huam.fly.dev" : "/api",
 });
 
 axios.interceptors.request.use(
@@ -14,7 +13,7 @@ axios.interceptors.request.use(
   },
   function (error) {
     return Promise.reject(error);
-  }
+  },
 );
 
 axios.interceptors.response.use(
@@ -23,7 +22,7 @@ axios.interceptors.response.use(
   },
   function (error) {
     return Promise.reject(error);
-  }
+  },
 );
 
 export default axios;

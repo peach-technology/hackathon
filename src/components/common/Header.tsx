@@ -1,11 +1,6 @@
 import { AuthState, useTurnkey } from "@turnkey/react-wallet-kit";
 import { Avatar, AvatarImage } from "../ui/avatar";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu";
 import { Link } from "react-router";
 import Login from "./Login";
 import useLoadStore from "@/store/useLoadStore";

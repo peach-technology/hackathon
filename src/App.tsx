@@ -2,10 +2,7 @@ import { RouterProvider } from "react-router";
 import { QueryClientProvider } from "@tanstack/react-query";
 import queryClient from "./lib/queryClient";
 import { ThemeProvider } from "./components/ThemeProvider";
-import {
-  TurnkeyProvider,
-  type TurnkeyProviderConfig,
-} from "@turnkey/react-wallet-kit";
+import { TurnkeyProvider, type TurnkeyProviderConfig } from "@turnkey/react-wallet-kit";
 import router from "./router";
 import { Toaster } from "./components/ui/sonner";
 import GlobalLoading from "./components/layouts/GlobalLoading";

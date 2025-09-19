@@ -1,17 +1,5 @@
-import {
-  type ColumnDef,
-  flexRender,
-  getCoreRowModel,
-  useReactTable,
-} from "@tanstack/react-table";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { type ColumnDef, flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
@@ -132,10 +120,7 @@ const HomePage = () => {
                           <TableHead key={header.id}>
                             {header.isPlaceholder
                               ? null
-                              : flexRender(
-                                  header.column.columnDef.header,
-                                  header.getContext()
-                                )}
+                              : flexRender(header.column.columnDef.header, header.getContext())}
                           </TableHead>
                         );
                       })}
@@ -167,28 +152,18 @@ const HomePage = () => {
                         key={row.id}
                         data-state={row.getIsSelected() && "selected"}
                         className="cursor-pointer"
-                        onClick={() =>
-                          navigate(
-                            `/detail/${row.original.network_name}/${row.original.pool_address}`
-                          )
-                        }
+                        onClick={() => navigate(`/detail/${row.original.network_name}/${row.original.pool_address}`)}
                       >
                         {row.getVisibleCells().map((cell) => (
                           <TableCell key={cell.id}>
-                            {flexRender(
-                              cell.column.columnDef.cell,
-                              cell.getContext()
-                            )}
+                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
                           </TableCell>
                         ))}
                       </TableRow>
                     ))
                   ) : (
                     <TableRow>
-                      <TableCell
-                        colSpan={columns.length}
-                        className="h-24 text-center"
-                      >
+                      <TableCell colSpan={columns.length} className="h-24 text-center">
                         No results.
                       </TableCell>
                     </TableRow>

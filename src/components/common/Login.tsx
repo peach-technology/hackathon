@@ -1,22 +1,9 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "../ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
 import { Input } from "../ui/input";
 import { ArrowRightCircle, Mail } from "lucide-react";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormMessage,
-} from "../ui/form";
+import { Form, FormControl, FormField, FormItem, FormMessage } from "../ui/form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "../ui/input-otp";
@@ -35,16 +22,9 @@ const formSchema = z.object({
 
 type Step = "closed" | "email" | "otp";
 
-const LoginCompoent = () => {
-  const {
-    initOtp,
-    completeOtp,
-    fetchOrCreateP256ApiKeyUser,
-    fetchUser,
-    fetchWallets,
-    httpClient,
-    logout,
-  } = useTurnkey();
+const Login = () => {
+  const { initOtp, completeOtp, fetchOrCreateP256ApiKeyUser, fetchUser, fetchWallets, httpClient, logout } =
+    useTurnkey();
 
   const { mutateAsync: walletMutate } = useWalletMutaiton();
 
@@ -128,10 +108,7 @@ const LoginCompoent = () => {
 
   return (
     <>
-      <Dialog
-        open={dialog === "email"}
-        onOpenChange={(o) => setDialog(o ? "email" : "closed")}
-      >
+      <Dialog open={dialog === "email"} onOpenChange={(o) => setDialog(o ? "email" : "closed")}>
         <DialogTrigger asChild>
           <Button size="sm" className="inline-flex cursor-pointer text-white">
             Log in or sign up
@@ -153,22 +130,11 @@ const LoginCompoent = () => {
                     <FormItem>
                       <FormControl>
                         <div className="relative">
-                          <Input
-                            placeholder="Enter your email"
-                            className="pr-12"
-                            enterKeyHint="send"
-                            {...field}
-                          />
+                          <Input placeholder="Enter your email" className="pr-12" enterKeyHint="send" {...field} />
                           {form.formState.isSubmitting ? (
-                            <Spinner
-                              variant="default"
-                              className="absolute right-2 top-1/2 -translate-y-1/2 "
-                            />
+                            <Spinner variant="default" className="absolute right-2 top-1/2 -translate-y-1/2 " />
                           ) : (
-                            <button
-                              type="submit"
-                              className="absolute right-2 top-1/2 -translate-y-1/2 "
-                            >
+                            <button type="submit" className="absolute right-2 top-1/2 -translate-y-1/2 ">
                               <ArrowRightCircle />
                             </button>
                           )}
@@ -187,10 +153,7 @@ const LoginCompoent = () => {
         </DialogContent>
       </Dialog>
 
-      <Dialog
-        open={dialog === "otp"}
-        onOpenChange={(o) => setDialog(o ? "otp" : "closed")}
-      >
+      <Dialog open={dialog === "otp"} onOpenChange={(o) => setDialog(o ? "otp" : "closed")}>
         <DialogContent className="max-w-[90%] sm:max-w-[416px]">
           <DialogHeader>
             <DialogTitle className="text-center">EMAIL - OTP</DialogTitle>
@@ -204,12 +167,7 @@ const LoginCompoent = () => {
               <p className="text-sm">{form.getValues("email")}</p>
             </div>
             <div className="flex justify-center">
-              <InputOTP
-                maxLength={6}
-                value={otpCode}
-                onChange={setOtpCode}
-                onComplete={handleCompleteOtp}
-              >
+              <InputOTP maxLength={6} value={otpCode} onChange={setOtpCode} onComplete={handleCompleteOtp}>
                 <InputOTPGroup>
                   <InputOTPSlot index={0} />
                   <InputOTPSlot index={1} />
@@ -227,4 +185,4 @@ const LoginCompoent = () => {
   );
 };
 
-export default LoginCompoent;
+export default Login;

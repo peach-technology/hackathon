@@ -9,12 +9,7 @@ import {
 } from "@/components/ui/chart";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  usePoolDetailQuery,
-  usePoolHistoryQuery,
-  type PoolHistoryChart,
-  type PoolHistoryType,
-} from "@/hooks/api/pool";
+import { usePoolDetailQuery, usePoolHistoryQuery, type PoolHistoryChart, type PoolHistoryType } from "@/hooks/api/pool";
 import { useEffect } from "react";
 import { useParams } from "react-router";
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
@@ -29,7 +24,7 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import Buy from "@/components/pages/detail/Buy";
+import Deposit from "@/components/pages/detail/Deposit";
 
 interface MergedHistoryRowType {
   timestamp: string;
@@ -75,9 +70,7 @@ const DetailPage = () => {
     error: poolHistoryError,
   } = usePoolHistoryQuery(network, address);
 
-  const mergeHistory = (
-    poolHistory: Omit<PoolHistoryType, "network" | "poolAddress">
-  ): MergedHistoryRowType[] => {
+  const mergeHistory = (poolHistory: Omit<PoolHistoryType, "network" | "poolAddress">): MergedHistoryRowType[] => {
     const map = new Map<string, MergedHistoryRowType>();
 
     const add = (arr: PoolHistoryChart[], key: AprKey) => {
@@ -94,10 +87,7 @@ const DetailPage = () => {
     add(poolHistory.combined_apr, "combined_apr");
     add(poolHistory.effective_apr, "effective_apr");
 
-    return Array.from(map.values()).sort(
-      (a, b) =>
-        new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
-    );
+    return Array.from(map.values()).sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
   };
 
   const isPending = poolDataPending || poolHistoryPending;
@@ -120,21 +110,14 @@ const DetailPage = () => {
                 <BreadcrumbLink href="/">Home</BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator />
-              <BreadcrumbItem>
-                {isPending ? (
-                  <Skeleton className="w-30 h-5" />
-                ) : (
-                  poolData?.pool_name
-                )}
-              </BreadcrumbItem>
+              <BreadcrumbItem>{isPending ? <Skeleton className="w-30 h-5" /> : poolData?.pool_name}</BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
 
           <div className="flex items-center gap-2">
             {isPending && (
               <>
-                <Skeleton className=" rounded-full size-10" />{" "}
-                <Skeleton className="w-60 h-5" />
+                <Skeleton className=" rounded-full size-10" /> <Skeleton className="w-60 h-5" />
               </>
             )}
             {!isPending && (
@@ -160,69 +143,22 @@ const DetailPage = () => {
 
           <Card>
             <CardContent>
-              {isPending && (
-                <Skeleton className="h-[400px] rounded-3xl w-full" />
-              )}
+              {isPending && <Skeleton className="aspect-video rounded-3xl w-full" />}
               {!isPending && (
-                <ChartContainer
-                  config={chartConfig}
-                  className="h-[400px] w-full"
-                >
+                <ChartContainer config={chartConfig} className="aspect-video w-full">
                   <AreaChart data={mergeHistory(poolHistory)}>
                     <defs>
-                      <linearGradient
-                        id="funding_apr"
-                        x1="0"
-                        y1="0"
-                        x2="0"
-                        y2="1"
-                      >
-                        <stop
-                          offset="5%"
-                          stopColor="var(--color-desktop)"
-                          stopOpacity={0.8}
-                        />
-                        <stop
-                          offset="95%"
-                          stopColor="var(--color-desktop)"
-                          stopOpacity={0.1}
-                        />
+                      <linearGradient id="funding_apr" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="var(--color-desktop)" stopOpacity={0.8} />
+                        <stop offset="95%" stopColor="var(--color-desktop)" stopOpacity={0.1} />
                       </linearGradient>
-                      <linearGradient
-                        id="combined_apr"
-                        x1="0"
-                        y1="0"
-                        x2="0"
-                        y2="1"
-                      >
-                        <stop
-                          offset="5%"
-                          stopColor="var(--color-mobile)"
-                          stopOpacity={0.8}
-                        />
-                        <stop
-                          offset="95%"
-                          stopColor="var(--color-mobile)"
-                          stopOpacity={0.1}
-                        />
+                      <linearGradient id="combined_apr" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="var(--color-mobile)" stopOpacity={0.8} />
+                        <stop offset="95%" stopColor="var(--color-mobile)" stopOpacity={0.1} />
                       </linearGradient>
-                      <linearGradient
-                        id="effective_apr"
-                        x1="0"
-                        y1="0"
-                        x2="0"
-                        y2="1"
-                      >
-                        <stop
-                          offset="5%"
-                          stopColor="var(--color-desktop)"
-                          stopOpacity={0.8}
-                        />
-                        <stop
-                          offset="95%"
-                          stopColor="var(--color-desktop)"
-                          stopOpacity={0.1}
-                        />
+                      <linearGradient id="effective_apr" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="var(--color-desktop)" stopOpacity={0.8} />
+                        <stop offset="95%" stopColor="var(--color-desktop)" stopOpacity={0.1} />
                       </linearGradient>
                     </defs>
                     <CartesianGrid strokeDasharray="3 3" />
@@ -232,32 +168,12 @@ const DetailPage = () => {
                       axisLine={false}
                       tickMargin={8}
                       minTickGap={32}
-                      tickFormatter={(value) =>
-                        dayjs(value).format("MMM D, HH:mm")
-                      }
+                      tickFormatter={(value) => dayjs(value).format("MMM D, HH:mm")}
                     />
-                    <ChartTooltip
-                      cursor={false}
-                      content={<ChartTooltipContent />}
-                    />
-                    <Area
-                      dataKey="funding_apr"
-                      type="natural"
-                      fill="url(#funding_apr)"
-                      stroke="var(--chart-1)"
-                    />
-                    <Area
-                      dataKey="combined_apr"
-                      type="natural"
-                      fill="url(#combined_apr)"
-                      stroke="var(--chart-2)"
-                    />
-                    <Area
-                      dataKey="effective_apr"
-                      type="natural"
-                      fill="url(#effective_apr)"
-                      stroke="var(--chart-3)"
-                    />
+                    <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
+                    <Area dataKey="funding_apr" type="natural" fill="url(#funding_apr)" stroke="var(--chart-1)" />
+                    <Area dataKey="combined_apr" type="natural" fill="url(#combined_apr)" stroke="var(--chart-2)" />
+                    <Area dataKey="effective_apr" type="natural" fill="url(#effective_apr)" stroke="var(--chart-3)" />
                     <ChartLegend content={<ChartLegendContent />} />
                   </AreaChart>
                 </ChartContainer>
@@ -289,76 +205,19 @@ const DetailPage = () => {
               <Separator orientation="vertical" />
               <Separator orientation="vertical" />
             </TabsContent>
-            <TabsContent value="transaction">
-              Change your password here.
-            </TabsContent>
+            <TabsContent value="transaction">Change your password here.</TabsContent>
           </Tabs>
         </div>
       </div>
 
       <div className="flex-none max-w-sm sticky top-18">
         {isPending && (
-          <>
-            <Skeleton className="w-[100px] h-[30px]" />
+          <div className="w-full md:w-[300px] lg:w-[400px]">
+            <Skeleton className="w-full h-[30px]" />
             <Skeleton className="w-full h-[220px] mt-5" />
-          </>
+          </div>
         )}
-        {!isPending && (
-          <Tabs defaultValue="buy" className="w-full md:w-[300px] lg:w-[400px]">
-            <TabsList className="bg-transparent">
-              <TabsTrigger value="buy" className="cursor-pointer">
-                Buy
-              </TabsTrigger>
-              {/* <TabsTrigger value="sell" className="cursor-pointer">
-                Sell
-              </TabsTrigger> */}
-            </TabsList>
-
-            <Buy poolData={poolData} />
-
-            {/* <TabsContent value="sell" className="space-y-5">
-              <div className="text-4xl border rounded-xl py-12 px-4 flex flex-col items-center">
-                <div className="flex w-full justify-center items-center gap-1 min-w-0">
-                  <p className="flex-none">US$</p>
-                  <input
-                    value={val}
-                    onChange={onChange}
-                    inputMode="numeric"
-                    pattern="[0-9]*"
-                    className="outline-0 bg-transparent w-6"
-                    style={{ width: `${Math.max(1, val.length) * 24}px` }}
-                  />
-                </div>
-                <div className="flex gap-2 items-center mt-8">
-                  <Button variant="outline" onClick={() => setVal("100")}>
-                    25%
-                  </Button>
-                  <Button variant="outline" onClick={() => setVal("300")}>
-                    50%
-                  </Button>
-                  <Button variant="outline" onClick={() => setVal("1000")}>
-                    75%
-                  </Button>
-                  <Button variant="outline" onClick={() => setVal("1000")}>
-                    100%
-                  </Button>
-                </div>
-              </div>
-
-              <Card>
-                <CardContent>SHORT</CardContent>
-              </Card>
-
-              <Card>
-                <CardContent>LONG</CardContent>
-              </Card>
-
-              <Button className="w-full h-12 text-white cursor-pointer">
-                qqq
-              </Button>
-            </TabsContent> */}
-          </Tabs>
-        )}
+        {!isPending && <Deposit poolData={poolData} />}
       </div>
     </div>
   );

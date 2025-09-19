@@ -15,14 +15,57 @@ interface getDepositQuoteForm {
 
 export interface getDepositQuoteResponse {
   marginRatio: number;
-  marginDepositAmount: string;
+  tokenInNetworkId: number;
+  tokenInAddress: string;
+  poolNetworkId: number;
+  poolAddress: string;
+  margin: {
+    tokenIn: {
+      networkId: number;
+      address: string;
+      amount: string;
+      amountUsd: string;
+      amountRaw: string;
+    };
+    tokenOut: {
+      networkId: number;
+      address: string;
+      amount: string;
+      amountUsd: string;
+      amountRaw: string;
+    };
+  };
   token0: {
-    amount: string;
-    value: string;
+    tokenIn: {
+      networkId: number;
+      address: string;
+      amount: string;
+      amountUsd: string;
+      amountRaw: string;
+    };
+    tokenOut: {
+      networkId: number;
+      address: string;
+      amount: string;
+      amountUsd: string;
+      amountRaw: string;
+    };
   };
   token1: {
-    amount: string;
-    value: string;
+    tokenIn: {
+      networkId: number;
+      address: string;
+      amount: string;
+      amountUsd: string;
+      amountRaw: string;
+    };
+    tokenOut: {
+      networkId: number;
+      address: string;
+      amount: string;
+      amountUsd: string;
+      amountRaw: string;
+    };
   };
 }
 
