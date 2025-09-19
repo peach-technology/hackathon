@@ -53,7 +53,7 @@ const generatorPoolHistoryQueryKey = (network?: string, address?: string) => {
 export const usePoolListQuery = () => {
   return useQuery<PoolType[]>({
     queryFn: async () => {
-      const res = await axios("/api/pools", {
+      const res = await axios("/pools", {
         params: {
           sort: "combined_apr",
         },
@@ -67,7 +67,7 @@ export const usePoolListQuery = () => {
 export const usePoolDetailQuery = (network?: string, address?: string) => {
   return useQuery<PoolType>({
     queryFn: async () => {
-      const res = await axios("/api/pools", {
+      const res = await axios("/pools", {
         params: {
           network: network,
           poolAddress: address,
@@ -96,7 +96,7 @@ export interface PoolHistoryChart {
 export const usePoolHistoryQuery = (network?: string, address?: string) => {
   return useQuery<PoolHistoryType>({
     queryFn: async () => {
-      const res = await axios(`/api/pools/history/${network}/${address}`);
+      const res = await axios(`/pools/history/${network}/${address}`);
       return res.data;
     },
     enabled: Boolean(network) || Boolean(address),

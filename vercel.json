@@ -1,6 +1,7 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "rewrites": [
+    { "source": "/api/:path*", "destination": "https://huam.fly.dev/:path*" },
     {
       "source": "/(.*)",
       "destination": "/index.html"

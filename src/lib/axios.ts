@@ -4,6 +4,8 @@ const axios = axiosBase.create({
   headers: {
     Authorization: import.meta.env.VITE_TOKEN!,
   },
+  baseURL:
+    process.env.NODE_ENV === "production" ? "https://huam.fly.dev" : "/api",
 });
 
 axios.interceptors.request.use(
