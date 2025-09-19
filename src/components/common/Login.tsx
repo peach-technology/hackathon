@@ -25,6 +25,7 @@ import { OtpType, useTurnkey } from "@turnkey/react-wallet-kit";
 import { toast } from "sonner";
 import { Spinner } from "../ui/shadcn-io/spinner";
 import useLoadStore from "@/store/useLoadStore";
+import { useWalletMutaiton } from "@/hooks/api/wallet";
 
 const formSchema = z.object({
   email: z.email({
@@ -40,9 +41,12 @@ const LoginCompoent = () => {
     completeOtp,
     fetchOrCreateP256ApiKeyUser,
     fetchUser,
+    fetchWallets,
     httpClient,
     logout,
   } = useTurnkey();
+
+  const { mutateAsync: walletMutate } = useWalletMutaiton();
 
   const setLoading = useLoadStore((state) => state.setLoading);
 
@@ -84,6 +88,8 @@ const LoginCompoent = () => {
 
       const freshUser = await fetchUser();
 
+      const freshWallets = await fetchWallets();
+
       const delegatedUser = await fetchOrCreateP256ApiKeyUser({
         publicKey: import.meta.env.VITE_TURNKEY_PUBLIC_KEY!,
         createParams: {
@@ -98,14 +104,25 @@ const LoginCompoent = () => {
         userIds: [freshUser.userId, delegatedUser.userId],
       });
 
+      await walletMutate({
+        method: "addWallet",
+        params: {
+          subOrgId: freshWallets[0].accounts[0].organizationId,
+          walletId: freshWallets[0].walletId,
+          delegatedUserId: delegatedUser.userId,
+          name: freshUser.userName,
+          address: freshWallets[0].accounts[0].address,
+        },
+      });
+
       toast.success("Login successful.");
+      setDialog("closed");
     } catch (e) {
       console.log(e);
       logout();
       toast.error("An error occurred during login.");
     } finally {
       setLoading(false);
-      setDialog("closed");
     }
   };
 
