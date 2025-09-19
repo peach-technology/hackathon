@@ -1,17 +1,20 @@
 import Login from "@/components/common/Login";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { PoolType } from "@/hooks/api/pool";
-import { useGetDepositQuoteMutation, type getDepositQuoteResponse } from "@/hooks/api/position";
+import { useDepositMutation, useExecuteMutation, useGetDepositQuoteMutation } from "@/hooks/api/position";
 import { formatUSD } from "@/utils/format";
 import { useTurnkey } from "@turnkey/react-wallet-kit";
+import { Ban as BanIcon, Check as CheckIcon } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useDebounce } from "react-use";
-import { toast } from "sonner";
+import { motion } from "motion/react";
+import type { DepositAndExecuteResponse } from "@/types/depositAndExecute";
+import type { getDepositQuoteResponse } from "@/types/getDeposit";
 
 interface DepositProps {
   poolData: PoolType;
@@ -19,15 +22,25 @@ interface DepositProps {
 
 const Deposit = ({ poolData }: DepositProps) => {
   const { wallets, user } = useTurnkey();
-  const { mutateAsync, isPending, isError, error } = useGetDepositQuoteMutation();
 
-  const { register, watch, setValue } = useForm({
+  const {
+    mutateAsync: GetDepositQuoteMutate,
+    isPending: GetDepositQuotePending,
+    isError: GetDepositQuoteIsError,
+    error: GetDepositQuoteError,
+  } = useGetDepositQuoteMutation();
+
+  const { mutateAsync: depositMutate } = useDepositMutation();
+
+  const [getDepositQuote, setGetDepositQuote] = useState<getDepositQuoteResponse>();
+
+  const [depositData, setDepositData] = useState<DepositAndExecuteResponse>();
+
+  const { register, handleSubmit, watch, setValue } = useForm({
     defaultValues: {
       amount: "",
     },
   });
-
-  const [getDepositQuote, setGetDepositQuote] = useState<getDepositQuoteResponse>();
 
   const amount = watch("amount");
 
@@ -35,11 +48,32 @@ const Deposit = ({ poolData }: DepositProps) => {
     setValue("amount", amount.toString());
   };
 
+  const onDepositSumbmit = handleSubmit(async (data) => {
+    try {
+      const result = await depositMutate({
+        sender: wallets[0].accounts[0].address,
+        tokenInNetworkId: 130,
+        poolNetworkId: poolData.network,
+        poolAddress: poolData.pool_address,
+        tokenInAddress: "0x078d782b760474a361dda0af3839290b0ef57ad6",
+        tokenInAmount: data.amount,
+        marginBufferMin: 0.2,
+        marginBufferMax: 0.4,
+        targetTickRange: 1000,
+      });
+
+      setDepositData(result);
+    } catch (e) {
+      console.error("Quote fetch error:", e);
+      setDepositData(undefined);
+    }
+  });
+
   useDebounce(
     async () => {
       if (amount && user) {
         try {
-          const result = await mutateAsync({
+          const result = await GetDepositQuoteMutate({
             sender: wallets[0].accounts[0].address,
             tokenInNetworkId: 130,
             poolNetworkId: poolData.network,
@@ -101,14 +135,14 @@ const Deposit = ({ poolData }: DepositProps) => {
             </div>
           </div>
 
-          {isPending && (
+          {GetDepositQuotePending && (
             <>
               <Skeleton className="w-full h-[120px]" />
               <Skeleton className="w-full h-[260px]" />
             </>
           )}
 
-          {!isPending && getDepositQuote && (
+          {!GetDepositQuotePending && getDepositQuote && (
             <>
               <div className="space-y-2">
                 <p className="px-2">HL</p>
@@ -246,10 +280,10 @@ const Deposit = ({ poolData }: DepositProps) => {
             </>
           )}
 
-          {isError && <p>{error.message}</p>}
+          {GetDepositQuoteIsError && <p>{GetDepositQuoteError.message}</p>}
 
-          {!isError && !isPending && user && (
-            <Button type="submit" className="w-full h-12 text-white cursor-pointer">
+          {!GetDepositQuoteIsError && !GetDepositQuotePending && user && (
+            <Button type="button" onClick={onDepositSumbmit} className="w-full h-12 text-white cursor-pointer">
               Execute
             </Button>
           )}
@@ -257,140 +291,37 @@ const Deposit = ({ poolData }: DepositProps) => {
           {!user && <Login />}
         </TabsContent>
       </Tabs>
-      <ExecuteStep />
+      {depositData && <ExecuteStep depositData={depositData} />}
     </>
   );
 };
 
 export default Deposit;
 
-const ExecuteStep = () => {
-  // 요청 성공 목업
-  const mockPurchaseResponse = {
-    type: "deposit",
-    position: {
-      id: 11,
-      wallet: 5,
-      pool: 1,
-      updated_at: "2025-09-19T10:53:33.322414+00:00",
-      created_at: "2025-09-19T10:53:33.322414+00:00",
-      margin_buffer_max: 0.4,
-      margin_buffer_min: 0.2,
-      subaccount: "0x206064c83fc8f0fcc00e705e49f7a2d32890f040",
-      tick_range_target: 1000,
-      pool_price_lower: null,
-      pool_price_upper: null,
-      active: false,
-    },
-    totalTokenIn: {
-      networkId: 130,
-      address: "0x078d782b760474a361dda0af3839290b0ef57ad6",
-      amount: "100",
-      amountUsd: "100000000",
-      amountRaw: "100000000",
-    },
-    totalSteps: [
-      {
-        type: "depositMargin",
-        pool: {
-          networkId: 130,
-          address: "0x8927058918e3cff6f55efe45a58db1be1f069e49",
-        },
-        tokenIn: [
-          {
-            networkId: 130,
-            address: "0x078d782b760474a361dda0af3839290b0ef57ad6",
-            amount: "13.793103",
-          },
-        ],
-        tokenOut: [
-          {
-            networkId: 1337,
-            address: "0x00000000000000000000000000000000",
-            amount: "13.761201",
-          },
-        ],
-      },
-      {
-        type: "swap",
-        pool: {
-          networkId: 130,
-          address: "0x8927058918e3cff6f55efe45a58db1be1f069e49",
-        },
-        tokenIn: [
-          {
-            networkId: 130,
-            address: "0x078d782b760474a361dda0af3839290b0ef57ad6",
-          },
-        ],
-        tokenOut: [
-          {
-            networkId: 130,
-            address: "0x4200000000000000000000000000000000000006",
-          },
-        ],
-      },
-      {
-        type: "depositPool",
-        pool: {
-          networkId: 130,
-          address: "0x8927058918e3cff6f55efe45a58db1be1f069e49",
-        },
-        tokenIn: [
-          {
-            address: "0x078d782b760474a361dda0af3839290b0ef57ad6",
-          },
-          {
-            address: "0x4200000000000000000000000000000000000006",
-          },
-        ],
-      },
-    ],
-  };
+const ExecuteStep = ({ depositData }: { depositData: DepositAndExecuteResponse }) => {
+  const { mutateAsync: ExecuteMutate } = useExecuteMutation();
 
   const [currentStep, setCurrentStep] = useState(-1); // -1: 시작 전, 0~n: 각 단계, totalSteps.length: 완료
   const [isLoading, setIsLoading] = useState(false);
-  const [stepResults, setStepResults] = useState<any[]>([]);
+  const [stepResults, setStepResults] = useState<DepositAndExecuteResponse[]>([]);
   const [error, setError] = useState(null);
 
-  // 예시 API 요청
-  const executeStepMutation = {
-    mutateAsync: async (stepData) => {
-      return new Promise((resolve, reject) => {
-        setTimeout(() => {
-          if (Math.random() > 0.1) {
-            resolve({
-              success: true,
-              txHash: `0x${Math.random().toString(16).substr(2, 64)}`,
-              gasUsed: Math.floor(Math.random() * 100000) + 21000,
-              blockNumber: Math.floor(Math.random() * 1000) + 18000000,
-              stepType: stepData.type,
-            });
-          } else {
-            reject(new Error(`${stepData.type} 실행 실패`));
-          }
-        }, Math.random() * 2000 + 1000);
-      });
-    },
-  };
+  const totalSteps = depositData.totalSteps;
 
-  // 테스트용 시작버튼
   const startPurchaseProcess = async () => {
     setIsLoading(true);
     setCurrentStep(-1);
     setStepResults([]);
     setError(null);
 
-    const totalSteps = mockPurchaseResponse.totalSteps;
     let index = 0;
 
     try {
       while (index < totalSteps.length) {
+        console.log(`현재 index: ${index}, Step ${index + 1}: ${totalSteps[index].type} 실행 중...`);
         setCurrentStep(index);
 
-        console.log(`현재 index: ${index}, Step ${index + 1}: ${totalSteps[index].type} 실행 중...`);
-
-        const result = await executeStepMutation.mutateAsync(totalSteps[index]);
+        const result = await ExecuteMutate(stepResults[index]);
 
         const stepResult = {
           stepIndex: index + 1,
@@ -410,8 +341,7 @@ const ExecuteStep = () => {
       setCurrentStep(totalSteps.length); // 모든 단계 완료
       console.log("모든 단계 완료!");
     } catch (error) {
-      console.error(`Step ${index + 1} 실행 중 오류:`, error);
-      setError(error.message);
+      console.error("fetch error:", error);
     } finally {
       setIsLoading(false);
     }
@@ -432,20 +362,41 @@ const ExecuteStep = () => {
 
       <div className="relative">
         <div className="relative z-20 space-y-12">
-          {mockPurchaseResponse.totalSteps.map((step, index) => (
+          {totalSteps.map((_, index) => (
             <div className="flex justify-between items-center">
-              <div
-                className={`size-10 border rounded-full flex items-center justify-center bg-black transition-all duration-300 ${
-                  getStepStatus(index) === "completed"
-                    ? "bg-green-500 text-white"
-                    : getStepStatus(index) === "active"
-                    ? "bg-blue-500 text-white animate-pulse"
-                    : getStepStatus(index) === "error"
-                    ? "bg-red-500 text-white"
-                    : "bg-gray-200 text-gray-600"
-                }`}
-              >
-                {getStepStatus(index) === "completed" ? "✓" : getStepStatus(index) === "error" ? "✗" : index + 1}
+              <div className="size-8 rounded-full flex items-center justify-center relative">
+                <motion.div
+                  className="-z-10 absolute top-0 left-0 w-full h-full border rounded-full"
+                  animate={{
+                    scale: getStepStatus(index) === "active" ? [1, 1.1, 1] : 1,
+                    backgroundColor:
+                      getStepStatus(index) === "completed"
+                        ? "#10b981"
+                        : getStepStatus(index) === "error"
+                        ? "#ef4444"
+                        : getStepStatus(index) === "active"
+                        ? "#3b82f6"
+                        : "#000000",
+                  }}
+                  transition={{
+                    scale: {
+                      duration: 1.5,
+                      repeat: getStepStatus(index) === "active" ? Infinity : 0,
+                      ease: "easeInOut",
+                    },
+                    backgroundColor: {
+                      duration: 0.3,
+                      ease: "easeInOut",
+                    },
+                  }}
+                />
+                {getStepStatus(index) === "completed" ? (
+                  <CheckIcon size={16} />
+                ) : getStepStatus(index) === "error" ? (
+                  <BanIcon size={16} />
+                ) : (
+                  index + 1
+                )}
               </div>
               <p className="text-muted-foreground text-xs">
                 {index === 0 && "Deposit Margin"}
@@ -456,47 +407,23 @@ const ExecuteStep = () => {
           ))}
         </div>
 
-        <div className="bg-white/50 w-[2px] h-full left-[19px] absolute top-0 z-10">
-          <div
+        <div className="bg-white/50 w-[2px] h-full left-[15px] absolute top-0 z-10">
+          <motion.div
             className="bg-white"
-            style={{
-              height: `${Math.min(100, (stepResults.length / (mockPurchaseResponse.totalSteps.length - 1)) * 100)}%`,
+            animate={{
+              height: `${Math.min(100, (stepResults.length / (totalSteps.length - 1)) * 100)}%`,
+            }}
+            transition={{
+              duration: 0.5,
+              ease: "easeInOut",
             }}
           />
         </div>
       </div>
 
-      {stepResults.length > 0 && (
-        <Card className="bg-emerald-50">
-          <CardContent className="space-y-2">
-            {stepResults.map((result, index) => (
-              <div key={index} className="text-sm border-b border-green-200 pb-2 last:border-b-0">
-                <div className="flex items-center mb-1">
-                  <span className="w-4 h-4 bg-green-500 rounded-full inline-flex items-center justify-center mr-2">
-                    <span className="text-white text-xs">✓</span>
-                  </span>
-                  <span className="font-medium text-green-800">
-                    Step {result.stepIndex}: {result.stepType}
-                  </span>
-                </div>
-                <div className="text-green-600 ml-6 space-y-1">
-                  <div>
-                    TX Hash: <code className="bg-green-100 px-1 rounded text-xs">{result.txHash}</code>
-                  </div>
-                  <div>Gas Used: {result.gasUsed.toLocaleString()}</div>
-                  <div>Block: #{result.blockNumber.toLocaleString()}</div>
-                </div>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-      )}
-
       <Card>
-        <CardHeader>
-          <CardTitle>구매 정보</CardTitle>
-        </CardHeader>
         <CardContent>
+          <p>구매 정보</p>
           토큰 수량: 100 USDC
           <br />
           USD 가치: $100
