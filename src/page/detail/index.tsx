@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   ChartContainer,
@@ -16,7 +15,7 @@ import {
   type PoolHistoryChart,
   type PoolHistoryType,
 } from "@/hooks/api/pool";
-import { useEffect, useState, type ChangeEvent } from "react";
+import { useEffect } from "react";
 import { useParams } from "react-router";
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
 import { toast } from "sonner";
@@ -30,6 +29,7 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import Buy from "@/components/pages/detail/Buy";
 
 interface MergedHistoryRowType {
   timestamp: string;
@@ -75,23 +75,6 @@ const DetailPage = () => {
     error: poolHistoryError,
   } = usePoolHistoryQuery(network, address);
 
-  useEffect(() => {
-    if (poolDataStatus === "error" || poolHistoryStatus === "error") {
-      toast(poolDataError?.message || poolHistoryError?.message);
-    }
-  }, [poolDataStatus, poolHistoryStatus, poolDataError, poolHistoryError]);
-
-  const [val, setVal] = useState("0");
-
-  const onChange = (e: ChangeEvent<HTMLInputElement>) => {
-    let digits = e.target.value.replace(/\D/g, "");
-    digits = digits.replace(/^0+/, "");
-
-    if (digits === "") digits = "0";
-
-    setVal(digits);
-  };
-
   const mergeHistory = (
     poolHistory: Omit<PoolHistoryType, "network" | "poolAddress">
   ): MergedHistoryRowType[] => {
@@ -119,11 +102,17 @@ const DetailPage = () => {
 
   const isPending = poolDataPending || poolHistoryPending;
 
+  useEffect(() => {
+    if (poolDataStatus === "error" || poolHistoryStatus === "error") {
+      toast(poolDataError?.message || poolHistoryError?.message);
+    }
+  }, [poolDataStatus, poolHistoryStatus, poolDataError, poolHistoryError]);
+
   if (poolDataStatus === "error" || poolHistoryStatus === "error") return null; // 에러 화면
 
   return (
-    <div className="flex gap-8 relative items-start">
-      <div className="flex-2 space-y-16">
+    <div className="md:flex gap-8 relative items-start">
+      <div className="flex-1 space-y-16 min-w-0">
         <div className="space-y-5">
           <Breadcrumb>
             <BreadcrumbList>
@@ -307,7 +296,7 @@ const DetailPage = () => {
         </div>
       </div>
 
-      <div className="flex-1 max-w-sm sticky top-18">
+      <div className="flex-none max-w-sm sticky top-18">
         {isPending && (
           <>
             <Skeleton className="w-[100px] h-[30px]" />
@@ -315,56 +304,19 @@ const DetailPage = () => {
           </>
         )}
         {!isPending && (
-          <Tabs defaultValue="buy" className="w-[400px]">
+          <Tabs defaultValue="buy" className="w-full md:w-[300px] lg:w-[400px]">
             <TabsList className="bg-transparent">
               <TabsTrigger value="buy" className="cursor-pointer">
                 Buy
               </TabsTrigger>
-              <TabsTrigger value="sell" className="cursor-pointer">
+              {/* <TabsTrigger value="sell" className="cursor-pointer">
                 Sell
-              </TabsTrigger>
+              </TabsTrigger> */}
             </TabsList>
 
-            <TabsContent value="buy" className="space-y-5">
-              <div className="text-4xl border rounded-xl py-12 px-4 flex flex-col items-center">
-                <div className="flex w-full justify-center items-center gap-1 min-w-0">
-                  <p className="flex-none">US$</p>
-                  <input
-                    value={val}
-                    onChange={onChange}
-                    inputMode="numeric"
-                    pattern="[0-9]*"
-                    className="outline-0 bg-transparent w-6"
-                    style={{ width: `${Math.max(1, val.length) * 24}px` }}
-                  />
-                </div>
-                <div className="flex gap-2 items-center mt-8">
-                  <Button variant="outline" onClick={() => setVal("100")}>
-                    $100
-                  </Button>
-                  <Button variant="outline" onClick={() => setVal("300")}>
-                    $300
-                  </Button>
-                  <Button variant="outline" onClick={() => setVal("1000")}>
-                    $1000
-                  </Button>
-                </div>
-              </div>
+            <Buy poolData={poolData} />
 
-              <Card>
-                <CardContent>SHORT</CardContent>
-              </Card>
-
-              <Card>
-                <CardContent>LONG</CardContent>
-              </Card>
-
-              <Button className="w-full h-12 text-white cursor-pointer">
-                qqq
-              </Button>
-            </TabsContent>
-
-            <TabsContent value="sell" className="space-y-5">
+            {/* <TabsContent value="sell" className="space-y-5">
               <div className="text-4xl border rounded-xl py-12 px-4 flex flex-col items-center">
                 <div className="flex w-full justify-center items-center gap-1 min-w-0">
                   <p className="flex-none">US$</p>
@@ -404,7 +356,7 @@ const DetailPage = () => {
               <Button className="w-full h-12 text-white cursor-pointer">
                 qqq
               </Button>
-            </TabsContent>
+            </TabsContent> */}
           </Tabs>
         )}
       </div>
