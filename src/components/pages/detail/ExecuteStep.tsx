@@ -81,8 +81,6 @@ const ExecuteStep = ({ depositData, onComplete }: ExecuteStepProps) => {
           totalSteps: updatedTotalSteps,
         };
 
-        console.log(`Executing step ${stepIndex}:`, executeParams);
-
         const result = await ExecuteMutate(executeParams);
 
         // 성공한 결과 저장
@@ -110,8 +108,6 @@ const ExecuteStep = ({ depositData, onComplete }: ExecuteStepProps) => {
             ];
           }
         });
-
-        console.log(`Step ${stepIndex} completed:`, result);
       } catch (error) {
         console.error(`Step ${stepIndex} failed:`, error);
 

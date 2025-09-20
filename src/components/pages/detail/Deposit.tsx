@@ -93,8 +93,6 @@ const Deposit = ({ poolData }: DepositProps) => {
         targetTickRange: 1000,
       });
 
-      console.log(result);
-
       setDepositData(result);
     } catch (e) {
       console.error("Quote fetch error:", e);
