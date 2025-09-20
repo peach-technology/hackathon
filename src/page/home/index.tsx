@@ -1,3 +1,5 @@
+/* eslint-disable react-refresh/only-export-components */
+
 import { type ColumnDef, flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useEffect } from "react";
@@ -9,10 +11,9 @@ import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatUSD } from "@/utils/format";
 
-// eslint-disable-next-line react-refresh/only-export-components
 export const columns: ColumnDef<PoolType>[] = [
   {
-    header: "Pool",
+    header: "NETWORK",
     cell: ({ row }) => {
       const r = row.original;
       return (
@@ -31,55 +32,87 @@ export const columns: ColumnDef<PoolType>[] = [
               )}
             </>
           </div>
-          {r.pool_name}
+          {r.dex_name}
         </div>
       );
     },
   },
   {
-    accessorKey: "dex",
-    header: "Dex",
+    header: "Ticker",
+    cell: ({ row }) => {
+      const r = row.original;
+      const [hype] = r.pool_name
+        .replace(r.dex_name, "")
+        .trim()
+        .split(/\/|\s+/)
+        .filter(Boolean);
+      return (hype || "").toUpperCase();
+    },
+  },
+  {
+    header: "Market",
+    cell: ({ row }) => {
+      const r = row.original;
+      const [, usdc] = r.pool_name
+        .replace(r.dex_name, "")
+        .trim()
+        .split(/\/|\s+/)
+        .filter(Boolean);
+      return (usdc || "").toUpperCase();
+    },
+  },
+  {
+    header: "Apr",
+    cell: ({ row }) => {
+      const r = row.original;
+      const [, , apr] = r.pool_name
+        .replace(r.dex_name, "")
+        .trim()
+        .split(/\/|\s+/)
+        .filter(Boolean);
+
+      return apr;
+    },
   },
   {
     accessorKey: "reserve_in_usd",
     header: "TVL",
     cell: ({ row }) => {
-      return `US$${formatUSD(row.getValue("reserve_in_usd"))}`;
+      return `$${formatUSD(row.getValue("reserve_in_usd"))}`;
     },
   },
   {
     accessorKey: "volume_1h",
     header: "1H Volume",
     cell: ({ row }) => {
-      return `US$${formatUSD(row.getValue("volume_1h"))}`;
+      return `$${formatUSD(row.getValue("volume_1h"))}`;
     },
   },
   {
     accessorKey: "volume_6h",
     header: "6H Volume",
     cell: ({ row }) => {
-      return `US$${formatUSD(row.getValue("volume_6h"))}`;
+      return `$${formatUSD(row.getValue("volume_6h"))}`;
     },
   },
   {
     accessorKey: "volume_24h",
     header: "24H Volume",
     cell: ({ row }) => {
-      return `US$${formatUSD(row.getValue("volume_24h"))}`;
+      return `$${formatUSD(row.getValue("volume_24h"))}`;
     },
   },
   {
     accessorKey: "combined_apr",
     header: "Combined Apr",
     cell: ({ row }) => {
-      return formatUSD(row.getValue("combined_apr"));
+      return `${formatUSD(row.getValue("combined_apr"))}%`;
     },
   },
 ];
 
 const HomePage = () => {
   const navigate = useNavigate();
-
   const { data, isPending, status, error } = usePoolListQuery();
 
   const table = useReactTable({
@@ -94,7 +127,7 @@ const HomePage = () => {
     }
   }, [status, error]);
 
-  if (status === "error") return <p className="text-center">Error</p>; // 에러 화면
+  if (status === "error") return <p className="text-center">Error</p>;
 
   return (
     <Card>
@@ -103,14 +136,15 @@ const HomePage = () => {
           <Table>
             <TableHeader>
               {isPending && (
-                <>
+                <TableRow>
                   {columns.map((_, index) => (
                     <TableHead key={index}>
                       <Skeleton className="h-[20px] w-full rounded-full" />
                     </TableHead>
                   ))}
-                </>
+                </TableRow>
               )}
+
               {!isPending && (
                 <>
                   {table.getHeaderGroups().map((headerGroup) => (
@@ -129,6 +163,7 @@ const HomePage = () => {
                 </>
               )}
             </TableHeader>
+
             <TableBody>
               {isPending && (
                 <>

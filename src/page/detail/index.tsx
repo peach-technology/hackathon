@@ -1,20 +1,9 @@
-import { Card, CardContent } from "@/components/ui/card";
-import {
-  ChartContainer,
-  ChartLegend,
-  ChartLegendContent,
-  ChartTooltip,
-  ChartTooltipContent,
-  type ChartConfig,
-} from "@/components/ui/chart";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { usePoolDetailQuery, usePoolHistoryQuery, type PoolHistoryChart, type PoolHistoryType } from "@/hooks/api/pool";
+import { usePoolDetailQuery } from "@/hooks/api/pool";
 import { useEffect } from "react";
 import { useParams } from "react-router";
-import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
 import { toast } from "sonner";
-import dayjs from "dayjs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -25,33 +14,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import Deposit from "@/components/pages/detail/Deposit";
-
-interface MergedHistoryRowType {
-  timestamp: string;
-  funding_apr?: number;
-  combined_apr?: number;
-  effective_apr?: number;
-}
-
-type AprKey = "funding_apr" | "combined_apr" | "effective_apr";
-
-const chartConfig = {
-  visitors: {
-    label: "Visitors",
-  },
-  funding_apr: {
-    label: "funding_apr",
-    color: "var(--chart-1)",
-  },
-  combined_apr: {
-    label: "combined_apr",
-    color: "var(--chart-2)",
-  },
-  effective_apr: {
-    label: "effective_apr",
-    color: "var(--chart-3)",
-  },
-} satisfies ChartConfig;
+import PoolAreaChart from "@/components/pages/detail/AreaChart";
 
 const DetailPage = () => {
   const { network, address } = useParams();
@@ -63,42 +26,15 @@ const DetailPage = () => {
     error: poolDataError,
   } = usePoolDetailQuery(network, address);
 
-  const {
-    data: poolHistory,
-    isPending: poolHistoryPending,
-    status: poolHistoryStatus,
-    error: poolHistoryError,
-  } = usePoolHistoryQuery(network, address);
-
-  const mergeHistory = (poolHistory: Omit<PoolHistoryType, "network" | "poolAddress">): MergedHistoryRowType[] => {
-    const map = new Map<string, MergedHistoryRowType>();
-
-    const add = (arr: PoolHistoryChart[], key: AprKey) => {
-      arr.forEach(({ timestamp, value }) => {
-        if (!map.has(timestamp)) {
-          map.set(timestamp, { timestamp });
-        }
-        const row = map.get(timestamp)!;
-        row[key] = value;
-      });
-    };
-
-    add(poolHistory.funding_apr, "funding_apr");
-    add(poolHistory.combined_apr, "combined_apr");
-    add(poolHistory.effective_apr, "effective_apr");
-
-    return Array.from(map.values()).sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
-  };
-
-  const isPending = poolDataPending || poolHistoryPending;
+  const isPending = poolDataPending;
 
   useEffect(() => {
-    if (poolDataStatus === "error" || poolHistoryStatus === "error") {
-      toast(poolDataError?.message || poolHistoryError?.message);
+    if (poolDataStatus === "error") {
+      toast(poolDataError?.message);
     }
-  }, [poolDataStatus, poolHistoryStatus, poolDataError, poolHistoryError]);
+  }, [poolDataStatus, poolDataError]);
 
-  if (poolDataStatus === "error" || poolHistoryStatus === "error") return null; // 에러 화면
+  if (poolDataStatus === "error") return null; // 에러 화면
 
   return (
     <div className="md:flex gap-8 relative items-start">
@@ -141,45 +77,7 @@ const DetailPage = () => {
             )}
           </div>
 
-          <Card>
-            <CardContent>
-              {isPending && <Skeleton className="aspect-video rounded-3xl w-full" />}
-              {!isPending && (
-                <ChartContainer config={chartConfig} className="aspect-video w-full">
-                  <AreaChart data={mergeHistory(poolHistory)}>
-                    <defs>
-                      <linearGradient id="funding_apr" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="var(--color-desktop)" stopOpacity={0.8} />
-                        <stop offset="95%" stopColor="var(--color-desktop)" stopOpacity={0.1} />
-                      </linearGradient>
-                      <linearGradient id="combined_apr" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="var(--color-mobile)" stopOpacity={0.8} />
-                        <stop offset="95%" stopColor="var(--color-mobile)" stopOpacity={0.1} />
-                      </linearGradient>
-                      <linearGradient id="effective_apr" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="var(--color-desktop)" stopOpacity={0.8} />
-                        <stop offset="95%" stopColor="var(--color-desktop)" stopOpacity={0.1} />
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis
-                      dataKey="timestamp"
-                      tickLine={false}
-                      axisLine={false}
-                      tickMargin={8}
-                      minTickGap={32}
-                      tickFormatter={(value) => dayjs(value).format("MMM D, HH:mm")}
-                    />
-                    <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
-                    <Area dataKey="funding_apr" type="natural" fill="url(#funding_apr)" stroke="var(--chart-1)" />
-                    <Area dataKey="combined_apr" type="natural" fill="url(#combined_apr)" stroke="var(--chart-2)" />
-                    <Area dataKey="effective_apr" type="natural" fill="url(#effective_apr)" stroke="var(--chart-3)" />
-                    <ChartLegend content={<ChartLegendContent />} />
-                  </AreaChart>
-                </ChartContainer>
-              )}
-            </CardContent>
-          </Card>
+          <PoolAreaChart network={network} address={address} />
         </div>
 
         <Separator />
