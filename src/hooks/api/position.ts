@@ -1,5 +1,5 @@
 import axios from "@/lib/axios";
-import type { ExecuteParams } from "@/types/execute";
+import type { ExecuteParams, ExecuteResponse } from "@/types/execute";
 import type { getDepositQuoteForm, getDepositQuoteResponse } from "@/types/getDeposit";
 import { useMutation } from "@tanstack/react-query";
 
@@ -60,7 +60,7 @@ export const useExecuteMutation = () => {
       // API 호출 시뮬레이션 (1초 지연)
       await delay(1000);
 
-      const response = MOCK_EXECUTE_RESPONSES[stepIndex as keyof typeof MOCK_EXECUTE_RESPONSES];
+      const response = MOCK_EXECUTE_RESPONSES[stepIndex as keyof typeof MOCK_EXECUTE_RESPONSES] as ExecuteResponse;
 
       if (!response) {
         throw new Error(`No mock data found for step ${stepIndex}`);

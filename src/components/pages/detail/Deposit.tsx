@@ -316,7 +316,11 @@ const Deposit = ({ poolData }: DepositProps) => {
         </Tabs>
       )}
 
-      {isExecuting && depositData && <ExecuteStep depositData={depositData} onComplete={onExecuteComplete} />}
+      {depositPending && <Skeleton className="w-full md:w-[300px] lg:w-[400px] h-[200px]" />}
+
+      {isExecuting && !depositPending && depositData && (
+        <ExecuteStep depositData={depositData} onComplete={onExecuteComplete} />
+      )}
     </>
   );
 };
