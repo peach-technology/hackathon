@@ -111,33 +111,17 @@ const HomePage = () => {
         <div className="overflow-hidden rounded-md border">
           <Table>
             <TableHeader>
-              {isPending && (
-                <TableRow>
-                  {columns.map((_, index) => (
-                    <TableHead key={index}>
-                      <Skeleton className="h-[20px] w-full rounded-full" />
-                    </TableHead>
-                  ))}
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => {
+                    return (
+                      <TableHead key={header.id}>
+                        {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
+                      </TableHead>
+                    );
+                  })}
                 </TableRow>
-              )}
-
-              {!isPending && (
-                <>
-                  {table.getHeaderGroups().map((headerGroup) => (
-                    <TableRow key={headerGroup.id}>
-                      {headerGroup.headers.map((header) => {
-                        return (
-                          <TableHead key={header.id}>
-                            {header.isPlaceholder
-                              ? null
-                              : flexRender(header.column.columnDef.header, header.getContext())}
-                          </TableHead>
-                        );
-                      })}
-                    </TableRow>
-                  ))}
-                </>
-              )}
+              ))}
             </TableHeader>
 
             <TableBody>
