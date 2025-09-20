@@ -10,10 +10,11 @@ import { usePoolListQuery, type PoolType } from "@/hooks/api/pool";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatUSD } from "@/utils/format";
+import parsePoolTokens from "@/utils/parsePoolTokens";
 
 export const columns: ColumnDef<PoolType>[] = [
   {
-    header: "NETWORK",
+    header: "Network",
     cell: ({ row }) => {
       const r = row.original;
       return (
@@ -39,40 +40,15 @@ export const columns: ColumnDef<PoolType>[] = [
   },
   {
     header: "Ticker",
-    cell: ({ row }) => {
-      const r = row.original;
-      const [hype] = r.pool_name
-        .replace(r.dex_name, "")
-        .trim()
-        .split(/\/|\s+/)
-        .filter(Boolean);
-      return (hype || "").toUpperCase();
-    },
+    cell: ({ row }) => parsePoolTokens(row.original.pool_name, row.original.dex_name)[0],
   },
   {
     header: "Market",
-    cell: ({ row }) => {
-      const r = row.original;
-      const [, usdc] = r.pool_name
-        .replace(r.dex_name, "")
-        .trim()
-        .split(/\/|\s+/)
-        .filter(Boolean);
-      return (usdc || "").toUpperCase();
-    },
+    cell: ({ row }) => parsePoolTokens(row.original.pool_name, row.original.dex_name)[1],
   },
   {
     header: "Apr",
-    cell: ({ row }) => {
-      const r = row.original;
-      const [, , apr] = r.pool_name
-        .replace(r.dex_name, "")
-        .trim()
-        .split(/\/|\s+/)
-        .filter(Boolean);
-
-      return apr;
-    },
+    cell: ({ row }) => parsePoolTokens(row.original.pool_name, row.original.dex_name)[2],
   },
   {
     accessorKey: "reserve_in_usd",

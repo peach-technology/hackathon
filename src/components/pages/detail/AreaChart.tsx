@@ -11,7 +11,7 @@ import { usePoolHistoryQuery, type PoolHistoryChart, type PoolHistoryType } from
 import { useEffect } from "react";
 import { toast } from "sonner";
 import dayjs from "dayjs";
-import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
+import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import { Card, CardContent } from "@/components/ui/card";
 
 type AprKey = "funding_apr" | "combined_apr" | "effective_apr";
@@ -49,12 +49,7 @@ const chartConfig = {
 const PoolAreaChart = ({ network, address }: PoolAreaChartProps) => {
   const { data: poolHistory, isPending, status, error } = usePoolHistoryQuery(network, address);
 
-  useEffect(() => {
-    if (status === "error") {
-      toast(error?.message || error?.message);
-    }
-  }, [error?.message, status]);
-
+  // 히스토리 묶음
   const mergeHistory = (poolHistory: Omit<PoolHistoryType, "network" | "poolAddress">): MergedHistoryRowType[] => {
     const map = new Map<string, MergedHistoryRowType>();
 
@@ -75,7 +70,13 @@ const PoolAreaChart = ({ network, address }: PoolAreaChartProps) => {
     return Array.from(map.values()).sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
   };
 
-  if (status === "error") return null; // 에러 화면
+  useEffect(() => {
+    if (status === "error") {
+      toast(error?.message || error?.message);
+    }
+  }, [error?.message, status]);
+
+  if (status === "error") return <p>Error</p>;
 
   if (isPending) return <Skeleton className="aspect-video rounded-3xl w-full" />;
 
@@ -107,10 +108,21 @@ const PoolAreaChart = ({ network, address }: PoolAreaChartProps) => {
               minTickGap={32}
               tickFormatter={(value) => dayjs(value).format("MMM D, HH:mm")}
             />
-            <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
-            <Area dataKey="funding_apr" type="natural" fill="url(#funding_apr)" stroke="var(--chart-1)" />
-            <Area dataKey="combined_apr" type="natural" fill="url(#combined_apr)" stroke="var(--chart-2)" />
-            <Area dataKey="effective_apr" type="natural" fill="url(#effective_apr)" stroke="var(--chart-3)" />
+            <YAxis
+              tickLine={false}
+              axisLine={false}
+              width={40}
+              domain={["dataMin", "dataMax"]}
+              allowDataOverflow={false}
+            />
+            <Area dataKey="funding_apr" type="monotone" fill="url(#funding_apr)" stroke="var(--chart-1)" />
+            <Area dataKey="combined_apr" type="monotone" fill="url(#combined_apr)" stroke="var(--chart-2)" />
+            <Area dataKey="effective_apr" type="monotone" fill="url(#effective_apr)" stroke="var(--chart-3)" />
+            <ChartTooltip
+              cursor={false}
+              content={<ChartTooltipContent />}
+              labelFormatter={(value) => dayjs(value).format("YYYY/MM/DD HH:mm")}
+            />
             <ChartLegend content={<ChartLegendContent />} />
           </AreaChart>
         </ChartContainer>

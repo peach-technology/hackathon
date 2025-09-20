@@ -13,28 +13,22 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import Deposit from "@/components/pages/detail/Deposit";
+// import Deposit from "@/components/pages/detail/Deposit";
 import PoolAreaChart from "@/components/pages/detail/AreaChart";
+import Deposit from "@/components/pages/detail/Deposit";
 
 const DetailPage = () => {
   const { network, address } = useParams();
 
-  const {
-    data: poolData,
-    isPending: poolDataPending,
-    status: poolDataStatus,
-    error: poolDataError,
-  } = usePoolDetailQuery(network, address);
-
-  const isPending = poolDataPending;
+  const { data, isPending, status, error } = usePoolDetailQuery(network, address);
 
   useEffect(() => {
-    if (poolDataStatus === "error") {
-      toast(poolDataError?.message);
+    if (status === "error") {
+      toast(error?.message);
     }
-  }, [poolDataStatus, poolDataError]);
+  }, [error?.message, status]);
 
-  if (poolDataStatus === "error") return null; // 에러 화면
+  if (status === "error") return <p>Error</p>;
 
   return (
     <div className="md:flex gap-8 relative items-start">
@@ -46,7 +40,7 @@ const DetailPage = () => {
                 <BreadcrumbLink href="/">Home</BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator />
-              <BreadcrumbItem>{isPending ? <Skeleton className="w-30 h-5" /> : poolData?.pool_name}</BreadcrumbItem>
+              <BreadcrumbItem>{isPending ? <Skeleton className="w-30 h-5" /> : data?.pool_name}</BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
 
@@ -60,19 +54,19 @@ const DetailPage = () => {
               <>
                 <div className="flex -space-x-4">
                   <>
-                    {poolData?.token0_logo && (
+                    {data?.token0_logo && (
                       <Avatar>
-                        <AvatarImage src={poolData?.token0_logo} />
+                        <AvatarImage src={data?.token0_logo} />
                       </Avatar>
                     )}
-                    {poolData?.token1_logo && (
+                    {data?.token1_logo && (
                       <Avatar>
-                        <AvatarImage src={poolData?.token1_logo} />
+                        <AvatarImage src={data?.token1_logo} />
                       </Avatar>
                     )}
                   </>
                 </div>
-                {poolData?.pool_name}
+                {data?.pool_name}
               </>
             )}
           </div>
@@ -115,7 +109,7 @@ const DetailPage = () => {
             <Skeleton className="w-full h-[220px] mt-5" />
           </div>
         )}
-        {!isPending && <Deposit poolData={poolData} />}
+        {!isPending && <Deposit poolData={data} />}
       </div>
     </div>
   );

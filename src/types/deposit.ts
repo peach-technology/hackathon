@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-export interface DepositAndExecuteResponse {
+export interface DepositResponse {
   type: string;
   position: Position;
   totalTokenIn: TotalTokenIn;
