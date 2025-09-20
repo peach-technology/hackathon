@@ -13,7 +13,6 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-// import Deposit from "@/components/pages/detail/Deposit";
 import PoolAreaChart from "@/components/pages/detail/AreaChart";
 import Deposit from "@/components/pages/detail/Deposit";
 
@@ -102,7 +101,7 @@ const DetailPage = () => {
         </div>
       </div>
 
-      <div className="flex-none max-w-sm sticky top-18">
+      <div className="flex-none max-w-sm sticky top-20">
         {isPending && (
           <div className="w-full md:w-[300px] lg:w-[400px]">
             <Skeleton className="w-full h-[30px]" />

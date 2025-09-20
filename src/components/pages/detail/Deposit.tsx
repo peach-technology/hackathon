@@ -1,12 +1,9 @@
 import Login from "@/components/common/Login";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { PoolType } from "@/hooks/api/pool";
 import { useDepositMutation, useGetDepositQuoteMutation } from "@/hooks/api/position";
-import { formatUSD } from "@/utils/format";
 import { useTurnkey } from "@turnkey/react-wallet-kit";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -17,6 +14,8 @@ import type { DepositResponse } from "@/types/deposit";
 import { Loader2Icon } from "lucide-react";
 import GetDepositHL from "./GetDepositHL";
 import GetDeposiLpPool from "./GetDeposiLpPool";
+import TokenSelect from "./TokenSelect";
+import useTokenStore from "@/store/useTokenStore";
 
 interface DepositProps {
   poolData: PoolType;
@@ -24,6 +23,7 @@ interface DepositProps {
 
 const Deposit = ({ poolData }: DepositProps) => {
   const { wallets, user } = useTurnkey();
+  const selectToken = useTokenStore((state) => state.token);
 
   const {
     mutateAsync: GetDepositQuoteMutate,
@@ -45,20 +45,16 @@ const Deposit = ({ poolData }: DepositProps) => {
   });
   const amount = watch("amount");
 
-  const setPresetAmount = (amount: number) => {
-    setValue("amount", amount.toString());
-  };
-
   const onDepositSumbmit = handleSubmit(async (data) => {
     try {
       setIsExecuting(true);
 
       const result = await depositMutate({
         sender: wallets[0].accounts[0].address,
-        tokenInNetworkId: 130, // TODO 요청 성공하면 토큰 선택추가
+        tokenInNetworkId: selectToken.network,
         poolNetworkId: poolData.network,
         poolAddress: poolData.pool_address,
-        tokenInAddress: "0x078d782b760474a361dda0af3839290b0ef57ad6", // TODO 요청 성공하면 토큰 선택추가
+        tokenInAddress: selectToken.contract_address,
         tokenInAmount: data.amount,
         marginBufferMin: 0.2,
         marginBufferMax: 0.4,
@@ -86,10 +82,10 @@ const Deposit = ({ poolData }: DepositProps) => {
         try {
           const result = await GetDepositQuoteMutate({
             sender: wallets[0].accounts[0].address,
-            tokenInNetworkId: 130, // TODO 요청 성공하면 토큰 선택추가
+            tokenInNetworkId: selectToken.network,
             poolNetworkId: poolData.network,
             poolAddress: poolData.pool_address,
-            tokenInAddress: "0x078d782b760474a361dda0af3839290b0ef57ad6", // TODO 요청 성공하면 토큰 선택추가
+            tokenInAddress: selectToken.contract_address,
             tokenInAmount: amount,
             marginBufferMin: 0.2,
             marginBufferMax: 0.4,
@@ -119,31 +115,20 @@ const Deposit = ({ poolData }: DepositProps) => {
           </TabsList>
 
           <TabsContent value="buy" className="space-y-5">
-            <div className="text-4xl border rounded-xl py-12 px-4 flex flex-col items-center">
-              <div className="flex w-full justify-center items-center gap-1 min-w-0">
-                <p className="flex-none">$</p>
+            <div className="text-4xl border rounded-xl py-12 px-4">
+              <div className="flex justify-between">
                 <input
                   inputMode="numeric"
                   pattern="[0-9]*"
-                  className="outline-0 bg-transparent flex-1 min-w-0 text-center"
+                  className="outline-0 bg-transparent flex-1 min-w-0 text-left"
                   placeholder="0"
                   {...register("amount", {
                     required: true,
                     pattern: /^\d*\.?\d*$/,
                   })}
                 />
-              </div>
 
-              <div className="flex gap-2 items-center mt-8">
-                <Button variant="outline" size="sm" onClick={() => setPresetAmount(10)}>
-                  $10
-                </Button>
-                <Button variant="outline" size="sm" onClick={() => setPresetAmount(100)}>
-                  $100
-                </Button>
-                <Button variant="outline" size="sm" onClick={() => setPresetAmount(300)}>
-                  $300
-                </Button>
+                <TokenSelect />
               </div>
             </div>
 
