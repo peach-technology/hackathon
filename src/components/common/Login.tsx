@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { Spinner } from "../ui/shadcn-io/spinner";
 import useLoadStore from "@/store/useLoadStore";
 import { useWalletMutaiton } from "@/hooks/api/wallet";
+import clsx from "clsx";
 
 const formSchema = z.object({
   email: z.email({
@@ -22,7 +23,13 @@ const formSchema = z.object({
 
 type Step = "closed" | "email" | "otp";
 
-const Login = () => {
+interface LoginProps {
+  buttonClass?: string;
+  buttonSize?: "default" | "sm" | "lg" | "icon" | null | undefined;
+  buttonLabel?: string;
+}
+
+const Login = ({ buttonClass, buttonSize, buttonLabel }: LoginProps) => {
   const { initOtp, completeOtp, fetchOrCreateP256ApiKeyUser, fetchUser, fetchWallets, httpClient, logout } =
     useTurnkey();
 
@@ -110,8 +117,11 @@ const Login = () => {
     <>
       <Dialog open={dialog === "email"} onOpenChange={(o) => setDialog(o ? "email" : "closed")}>
         <DialogTrigger asChild>
-          <Button size="sm" className="inline-flex cursor-pointer text-white">
-            Log in or sign up
+          <Button
+            size={buttonSize ? buttonSize : "sm"}
+            className={clsx("inline-flex cursor-pointer text-primary-foreground bg-primary", buttonClass)}
+          >
+            {buttonLabel ? buttonLabel : "Log in or sign up"}
           </Button>
         </DialogTrigger>
         <DialogContent className="max-w-[90%] sm:max-w-[416px]">

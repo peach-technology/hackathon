@@ -170,7 +170,7 @@ const Deposit = ({ poolData }: DepositProps) => {
             )}
 
             {/* TDOO :버튼 크기 변경 */}
-            {!user && <Login />}
+            {!user && <Login buttonClass="w-full" buttonSize="default" buttonLabel="Please Login" />}
           </TabsContent>
         </Tabs>
       )}
