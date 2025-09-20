@@ -4,6 +4,7 @@ import type { DepositResponse } from "@/types/deposit";
 import { useCallback, useEffect, useState } from "react";
 import { Check as CheckIcon } from "lucide-react";
 import { Ban as BanIcon } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { useTurnkey } from "@turnkey/react-wallet-kit";
 import type { Activity, ExecuteResponse } from "@/types/execute";
 import { toast } from "sonner";
@@ -51,13 +52,33 @@ const ExecuteStep = ({ depositData, onComplete }: ExecuteStepProps) => {
       try {
         setIsExecuting(true);
 
+        // 이전 스텝의 결과를 가져와서 업데이트
+        let updatedTotalSteps = depositData.totalSteps;
+        let updatedTotalTokenIn = depositData.totalTokenIn;
+        let updatedPositionId = depositData.position.id;
+
+        if (stepIndex > 0) {
+          const previousStepResult = stepResults.find((r) => r.stepIndex === stepIndex - 1);
+          if (previousStepResult?.status === "success" && previousStepResult.data) {
+            if (previousStepResult.data.totalSteps) {
+              updatedTotalSteps = previousStepResult.data.totalSteps;
+            }
+            if (previousStepResult.data.totalTokenIn) {
+              updatedTotalTokenIn = previousStepResult.data.totalTokenIn;
+            }
+            if (previousStepResult.data.positionId) {
+              updatedPositionId = previousStepResult.data.positionId;
+            }
+          }
+        }
+
         const executeParams = {
           type: depositData.type,
           sender: wallets[0].accounts[0].address.toLocaleLowerCase(),
           stepIndex,
-          positionId: depositData.position.id,
-          totalTokenIn: depositData.totalTokenIn,
-          totalSteps: depositData.totalSteps,
+          positionId: updatedPositionId,
+          totalTokenIn: updatedTotalTokenIn,
+          totalSteps: updatedTotalSteps,
         };
 
         console.log(`Executing step ${stepIndex}:`, executeParams);
@@ -123,7 +144,7 @@ const ExecuteStep = ({ depositData, onComplete }: ExecuteStepProps) => {
         setIsExecuting(false);
       }
     },
-    [ExecuteMutate, depositData, wallets]
+    [ExecuteMutate, depositData, wallets, stepResults]
   );
 
   // 다음 스텝 실행 또는 완료 처리
@@ -280,6 +301,12 @@ const ExecuteStep = ({ depositData, onComplete }: ExecuteStepProps) => {
             </div>
           </div>
         </div>
+      )}
+
+      {stepResults.some((r) => r.status === "error") && (
+        <Button onClick={onComplete} size="sm" variant="outline" className="text-white w-full cursor-pointer">
+          Reset
+        </Button>
       )}
     </div>
   );
