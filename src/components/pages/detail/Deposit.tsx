@@ -45,7 +45,39 @@ const Deposit = ({ poolData }: DepositProps) => {
   });
   const amount = watch("amount");
 
+  useDebounce(
+    async () => {
+      if (amount && user) {
+        if (!poolData) return;
+
+        try {
+          const result = await GetDepositQuoteMutate({
+            sender: wallets[0].accounts[0].address,
+            tokenInNetworkId: selectToken.network,
+            poolNetworkId: poolData.network,
+            poolAddress: poolData.pool_address,
+            tokenInAddress: selectToken.contract_address,
+            tokenInAmount: amount,
+            marginBufferMin: 0.2,
+            marginBufferMax: 0.4,
+            targetTickRange: 1000,
+          });
+          setGetDepositQuote(result);
+        } catch (error) {
+          console.error("Quote fetch error:", error);
+          setGetDepositQuote(undefined);
+        }
+      } else {
+        setGetDepositQuote(undefined);
+      }
+    },
+    300,
+    [amount]
+  );
+
   const onDepositSumbmit = handleSubmit(async (data) => {
+    if (!poolData) return;
+
     try {
       setIsExecuting(true);
 
@@ -75,34 +107,6 @@ const Deposit = ({ poolData }: DepositProps) => {
     setValue("amount", "");
     setGetDepositQuote(undefined);
   };
-
-  useDebounce(
-    async () => {
-      if (amount && user) {
-        try {
-          const result = await GetDepositQuoteMutate({
-            sender: wallets[0].accounts[0].address,
-            tokenInNetworkId: selectToken.network,
-            poolNetworkId: poolData.network,
-            poolAddress: poolData.pool_address,
-            tokenInAddress: selectToken.contract_address,
-            tokenInAmount: amount,
-            marginBufferMin: 0.2,
-            marginBufferMax: 0.4,
-            targetTickRange: 1000,
-          });
-          setGetDepositQuote(result);
-        } catch (error) {
-          console.error("Quote fetch error:", error);
-          setGetDepositQuote(undefined);
-        }
-      } else {
-        setGetDepositQuote(undefined);
-      }
-    },
-    300,
-    [amount]
-  );
 
   return (
     <>

@@ -92,11 +92,8 @@ const DetailPage = () => {
                 Transaction
               </TabsTrigger>
             </TabsList>
-            <TabsContent value="position">
-              <Separator orientation="vertical" />
-              <Separator orientation="vertical" />
-            </TabsContent>
-            <TabsContent value="transaction">Change your password here.</TabsContent>
+            <TabsContent value="position"></TabsContent>
+            <TabsContent value="transaction"></TabsContent>
           </Tabs>
         </div>
       </div>
