@@ -52,7 +52,7 @@ const Deposit = ({ poolData }: DepositProps) => {
 
         try {
           const result = await GetDepositQuoteMutate({
-            sender: wallets[0].accounts[0].address,
+            sender: wallets[0].accounts[0].address.toLocaleLowerCase(),
             tokenInNetworkId: selectToken.network,
             poolNetworkId: poolData.network,
             poolAddress: poolData.pool_address,
@@ -82,7 +82,7 @@ const Deposit = ({ poolData }: DepositProps) => {
       setIsExecuting(true);
 
       const result = await depositMutate({
-        sender: wallets[0].accounts[0].address,
+        sender: wallets[0].accounts[0].address.toLocaleLowerCase(),
         tokenInNetworkId: selectToken.network,
         poolNetworkId: poolData.network,
         poolAddress: poolData.pool_address,
@@ -92,6 +92,8 @@ const Deposit = ({ poolData }: DepositProps) => {
         marginBufferMax: 0.4,
         targetTickRange: 1000,
       });
+
+      console.log(result);
 
       setDepositData(result);
     } catch (e) {

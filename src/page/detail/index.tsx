@@ -18,7 +18,6 @@ import Deposit from "@/components/pages/detail/Deposit";
 
 const DetailPage = () => {
   const { network, address } = useParams();
-
   const { data, isPending, status, error } = usePoolDetailQuery(network, address);
 
   useEffect(() => {

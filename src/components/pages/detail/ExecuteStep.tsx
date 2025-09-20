@@ -52,8 +52,8 @@ const ExecuteStep = ({ depositData, onComplete }: ExecuteStepProps) => {
         setIsExecuting(true);
 
         const executeParams = {
-          type: "deposit",
-          sender: wallets[0].accounts[0].address,
+          type: depositData.type,
+          sender: wallets[0].accounts[0].address.toLocaleLowerCase(),
           stepIndex,
           positionId: depositData.position.id,
           totalTokenIn: depositData.totalTokenIn,
@@ -123,7 +123,7 @@ const ExecuteStep = ({ depositData, onComplete }: ExecuteStepProps) => {
         setIsExecuting(false);
       }
     },
-    [ExecuteMutate, depositData.position.id, depositData.totalSteps, depositData.totalTokenIn, wallets]
+    [ExecuteMutate, depositData, wallets]
   );
 
   // 다음 스텝 실행 또는 완료 처리
@@ -159,16 +159,16 @@ const ExecuteStep = ({ depositData, onComplete }: ExecuteStepProps) => {
   }, [stepResults, currentStep, isExecuting, totalSteps.length, executeStep, onComplete]);
 
   useEffect(() => {
-    if (stepResults.length === 0) {
+    if (stepResults.length === 0 && !isExecuting) {
       executeStep(0);
     }
-  }, [executeStep, stepResults.length]);
+  }, [executeStep, stepResults.length, isExecuting]);
 
   return (
     <div className="p-4 w-full md:w-[300px] lg:w-[400px] space-y-5">
       <div className="relative">
         <div className="relative z-20 space-y-12">
-          {depositData.totalSteps.map((_, index) => (
+          {depositData.totalSteps.map((result, index) => (
             <div className="flex justify-between items-center">
               <div className="size-8 rounded-full flex items-center justify-center relative">
                 <motion.div
@@ -204,11 +204,7 @@ const ExecuteStep = ({ depositData, onComplete }: ExecuteStepProps) => {
                   index + 1
                 )}
               </div>
-              <p className="text-muted-foreground text-xs">
-                {index === 0 && "Deposit Margin"}
-                {index === 1 && "Swap"}
-                {index === 2 && "Deposit Pool"}
-              </p>
+              <p className="text-muted-foreground text-xs">{result.type}</p>
             </div>
           ))}
         </div>
