@@ -15,6 +15,8 @@ import type { getDepositQuoteResponse } from "@/types/getDeposit";
 import ExecuteStep from "./ExecuteStep";
 import type { DepositResponse } from "@/types/deposit";
 import { Loader2Icon } from "lucide-react";
+import GetDepositHL from "./GetDepositHL";
+import GetDeposiLpPool from "./GetDeposiLpPool";
 
 interface DepositProps {
   poolData: PoolType;
@@ -74,7 +76,6 @@ const Deposit = ({ poolData }: DepositProps) => {
   const onExecuteComplete = () => {
     setIsExecuting(false);
     setDepositData(undefined);
-    // 필요하다면 폼 리셋
     setValue("amount", "");
     setGetDepositQuote(undefined);
   };
@@ -155,139 +156,8 @@ const Deposit = ({ poolData }: DepositProps) => {
 
             {!GetDepositQuotePending && getDepositQuote && (
               <>
-                <div className="space-y-2">
-                  <p className="px-2">HL</p>
-                  <Card>
-                    <CardContent className="space-y-4">
-                      <div className="space-y-2">
-                        <h4 className="text-muted-foreground text-xs">TOKEN IN</h4>
-                        <div className="flex justify-between">
-                          <p className="text-muted-foreground text-xs">Amount</p>
-                          <p className="text-muted-foreground text-xs">
-                            {formatUSD(Number(getDepositQuote?.margin.tokenIn.amount))}
-                          </p>
-                        </div>
-                        <div className="flex justify-between">
-                          <p className="text-muted-foreground text-xs">AmountUSD</p>
-                          <p className="text-muted-foreground text-xs">
-                            {`$${formatUSD(Number(getDepositQuote?.margin.tokenIn.amountUsd))}`}
-                          </p>
-                        </div>
-                      </div>
-
-                      <Separator />
-
-                      <div className="space-y-2">
-                        <h4 className="text-muted-foreground text-xs">TOKEN OUT</h4>
-                        <div className="flex justify-between">
-                          <p className="text-muted-foreground text-xs">Amount</p>
-                          <p className="text-muted-foreground text-xs">
-                            {formatUSD(Number(getDepositQuote?.margin.tokenOut.amount))}
-                          </p>
-                        </div>
-                        <div className="flex justify-between">
-                          <p className="text-muted-foreground text-xs">AmountUSD</p>
-                          <p className="text-muted-foreground text-xs">
-                            {`$${formatUSD(Number(getDepositQuote?.margin.tokenOut.amountUsd))}`}
-                          </p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-
-                <div className="space-y-2">
-                  <p className="px-2">PULL</p>
-                  <Card>
-                    <CardContent className="space-y-6">
-                      <div className="space-y-4">
-                        <h4 className="text-sm leading-none font-medium">TOKEN0</h4>
-
-                        <Card>
-                          <CardContent className="space-y-4">
-                            <div className="space-y-2">
-                              <h4 className="text-muted-foreground text-xs">TOKEN IN</h4>
-                              <div className="flex justify-between">
-                                <p className="text-muted-foreground text-xs">Amount</p>
-                                <p className="text-muted-foreground text-xs">
-                                  {formatUSD(Number(getDepositQuote?.token0.tokenIn.amount))}
-                                </p>
-                              </div>
-                              <div className="flex justify-between">
-                                <p className="text-muted-foreground text-xs">AmountUSD</p>
-                                <p className="text-muted-foreground text-xs">
-                                  {`$${formatUSD(Number(getDepositQuote?.token0.tokenIn.amountUsd))}`}
-                                </p>
-                              </div>
-                            </div>
-
-                            <Separator />
-
-                            <div className="space-y-2">
-                              <p className="text-muted-foreground text-xs">TOKEN OUT</p>
-                              <div className="flex justify-between">
-                                <p className="text-muted-foreground text-xs">Amount</p>
-                                <p className="text-muted-foreground text-xs">
-                                  {formatUSD(Number(getDepositQuote?.token0.tokenOut.amount))}
-                                </p>
-                              </div>
-                              <div className="flex justify-between">
-                                <p className="text-muted-foreground text-xs">AmountUSD</p>
-                                <p className="text-muted-foreground text-xs">
-                                  {`$${formatUSD(Number(getDepositQuote?.token0.tokenOut.amountUsd))}`}
-                                </p>
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      </div>
-
-                      <Separator />
-
-                      <div className="space-y-4">
-                        <h4 className="text-sm leading-none font-medium">TOKEN1</h4>
-
-                        <Card>
-                          <CardContent className="space-y-4">
-                            <div className="space-y-2">
-                              <h4 className="text-muted-foreground text-xs">TOKEN IN</h4>
-                              <div className="flex justify-between">
-                                <p className="text-muted-foreground text-xs">Amount</p>
-                                <p className="text-muted-foreground text-xs">
-                                  {formatUSD(Number(getDepositQuote?.token1.tokenIn.amount))}
-                                </p>
-                              </div>
-                              <div className="flex justify-between">
-                                <p className="text-muted-foreground text-xs">AmountUSD</p>
-                                <p className="text-muted-foreground text-xs">
-                                  {`$${formatUSD(Number(getDepositQuote?.token1.tokenIn.amountUsd))}`}
-                                </p>
-                              </div>
-                            </div>
-
-                            <Separator />
-
-                            <div className="space-y-2">
-                              <p className="text-muted-foreground text-xs">TOKEN OUT</p>
-                              <div className="flex justify-between">
-                                <p className="text-muted-foreground text-xs">Amount</p>
-                                <p className="text-muted-foreground text-xs">
-                                  {formatUSD(Number(getDepositQuote?.token1.tokenOut.amount))}
-                                </p>
-                              </div>
-                              <div className="flex justify-between">
-                                <p className="text-muted-foreground text-xs">AmountUSD</p>
-                                <p className="text-muted-foreground text-xs">
-                                  {`$${formatUSD(Number(getDepositQuote?.token1.tokenOut.amountUsd))}`}
-                                </p>
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
+                <GetDepositHL getDepositQuote={getDepositQuote} />
+                <GetDeposiLpPool getDepositQuote={getDepositQuote} />
               </>
             )}
 
@@ -310,7 +180,7 @@ const Deposit = ({ poolData }: DepositProps) => {
               </Button>
             )}
 
-            {/* 버튼 크기 변경 */}
+            {/* TDOO :버튼 크기 변경 */}
             {!user && <Login />}
           </TabsContent>
         </Tabs>
