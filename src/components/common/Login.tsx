@@ -105,7 +105,7 @@ const Login = ({ buttonClass, buttonSize, buttonLabel }: LoginProps) => {
       toast.success("Login successful.");
       setDialog("closed");
     } catch (e) {
-      console.log(e);
+      console.error(e);
       logout();
       toast.error("An error occurred during login.");
     } finally {

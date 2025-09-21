@@ -50,7 +50,7 @@ const Deposit = ({ poolData }: DepositProps) => {
 
   useDebounce(
     async () => {
-      if (amount && user) {
+      if (amount && user && wallets) {
         if (!poolData) return;
 
         try {

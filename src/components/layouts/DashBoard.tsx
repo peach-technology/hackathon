@@ -11,7 +11,7 @@ const DashBoard = () => {
     <div className="min-h-[100vh] flex flex-col bg-neutral-800 px-2">
       <Header />
       <div className="flex flex-1 flex-col py-20 md:py-24 bg-neutral-900 rounded-2xl relative">
-        <div className="container max-w-7xl mx-auto max-xl:px-6 relative ">
+        <div className="container max-w-7xl mx-auto px-6 relative ">
           <Outlet />
         </div>
 
