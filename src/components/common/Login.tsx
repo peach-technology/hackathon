@@ -17,7 +17,7 @@ import clsx from "clsx";
 
 const formSchema = z.object({
   email: z.email({
-    message: "유효한 이메일을 입력해 주세요.",
+    message: "Please enter a valid email.",
   }),
 });
 

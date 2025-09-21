@@ -22,7 +22,7 @@ const DetailPage = () => {
 
   useEffect(() => {
     if (status === "error") {
-      toast(error?.message);
+      toast.error(error?.message);
     }
   }, [error?.message, status]);
 

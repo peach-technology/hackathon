@@ -36,10 +36,6 @@ const chartConfig = {
     label: "Funding",
     color: "var(--chart-1)",
   },
-  combined_apr: {
-    label: "Combined",
-    color: "var(--chart-2)",
-  },
   effective_apr: {
     label: "Effective",
     color: "var(--chart-3)",
@@ -64,7 +60,6 @@ const PoolAreaChart = ({ network, address }: PoolAreaChartProps) => {
     };
 
     add(poolHistory.funding_apr, "funding_apr");
-    add(poolHistory.combined_apr, "combined_apr");
     add(poolHistory.effective_apr, "effective_apr");
 
     return Array.from(map.values()).sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
@@ -116,7 +111,6 @@ const PoolAreaChart = ({ network, address }: PoolAreaChartProps) => {
               allowDataOverflow={false}
             />
             <Area dataKey="funding_apr" type="monotone" fill="url(#funding_apr)" stroke="var(--chart-1)" />
-            <Area dataKey="combined_apr" type="monotone" fill="url(#combined_apr)" stroke="var(--chart-2)" />
             <Area dataKey="effective_apr" type="monotone" fill="url(#effective_apr)" stroke="var(--chart-3)" />
             <ChartTooltip
               cursor={false}
