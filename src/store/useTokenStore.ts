@@ -2,12 +2,13 @@ import type { TokenType } from "@/hooks/api/token";
 import { create } from "zustand";
 
 interface UseTokenStoreProps {
-  token: Omit<TokenType, "id">;
+  token: TokenType;
   setToken: (token: TokenType) => void;
 }
 
 const useTokenStore = create<UseTokenStoreProps>((set) => ({
   token: {
+    id: 2,
     network: 130,
     symbol: "USDC",
     contract_address: "0x078d782b760474a361dda0af3839290b0ef57ad6",

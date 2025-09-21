@@ -19,7 +19,7 @@ const Header = () => {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-neutral-900">
+    <header className="sticky top-0 z-50 w-full bg-neutral-800">
       <div className="mx-auto flex h-16 items-center justify-between px-4">
         <div className="flex items-center space-x-4">
           <div className="flsex items-center space-x-2">

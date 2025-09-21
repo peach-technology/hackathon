@@ -77,6 +77,9 @@ importers:
       next-themes:
         specifier: ^0.4.6
         version: 0.4.6(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+      odometer:
+        specifier: ^0.4.8
+        version: 0.4.8
       react:
         specifier: ^19.1.1
         version: 19.1.1
@@ -86,6 +89,9 @@ importers:
       react-hook-form:
         specifier: ^7.62.0
         version: 7.62.0(react@19.1.1)
+      react-odometerjs:
+        specifier: ^3.1.3
+        version: 3.1.3(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       react-router:
         specifier: ^7.8.2
         version: 7.8.2(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
@@ -2600,6 +2606,9 @@ packages:
     resolution: {integrity: sha512-rJgTQnkUnH1sFw8yT6VSU3zD3sWmu6sZhIseY8VX+GRu3P6F7Fu+JNDoXfklElbLJSnc3FUQHVe4cU5hj+BcUg==}
     engines: {node: '>=0.10.0'}
 
+  odometer@0.4.8:
+    resolution: {integrity: sha512-bfKuAhWE/qMCiX9bwX90c5bTpt7MDVeq1e6YsOHQrYokNhv9jhS5JbR9kg6i+FeWmDgalf3VUtwNx1aVaZ8cgg==}
+
   ofetch@1.4.1:
     resolution: {integrity: sha512-QZj2DfGplQAr2oj9KzceK9Hwz6Whxazmn85yYeVuS3u9XTMOGMRx0kO95MQ+vLsj/S/NwBDMMLU5hpxvI6Tklw==}
 
@@ -2737,6 +2746,12 @@ packages:
 
   react-is@18.3.1:
     resolution: {integrity: sha512-/LLMVyas0ljjAtoYiPqYiL8VWXzUUdThrmU5+n20DZv+a+ClRoevUzw5JxU+Ieh5/c87ytoTBV9G1FiKfNJdmg==}
+
+  react-odometerjs@3.1.3:
+    resolution: {integrity: sha512-J3gGwvgfIjBpGYp3SxTouTrlaDjEqGr8ddDyGiI2HTfGhSl0kA6BztNwvKvwD9OYgPAMuCfs3npdfBmFcaNmkw==}
+    peerDependencies:
+      react: '>= 16.8.0'
+      react-dom: '>= 16.8.0'
 
   react-remove-scroll-bar@2.3.8:
     resolution: {integrity: sha512-9r+yi9+mgU33AKcj6IbT9oRCO78WriSj6t/cF8DWBZJ9aOGPOTEDvdUDz1FwKim7QXWwmHqtdHnRJfhAxEG46Q==}
@@ -5780,6 +5795,8 @@ snapshots:
 
   object-assign@4.1.1: {}
 
+  odometer@0.4.8: {}
+
   ofetch@1.4.1:
     dependencies:
       destr: 2.0.5
@@ -5931,6 +5948,12 @@ snapshots:
   react-is@16.13.1: {}
 
   react-is@18.3.1: {}
+
+  react-odometerjs@3.1.3(react-dom@19.1.1(react@19.1.1))(react@19.1.1):
+    dependencies:
+      odometer: 0.4.8
+      react: 19.1.1
+      react-dom: 19.1.1(react@19.1.1)
 
   react-remove-scroll-bar@2.3.8(@types/react@19.1.12)(react@19.1.1):
     dependencies:

@@ -11,7 +11,7 @@ import { useDebounce } from "react-use";
 import type { getDepositQuoteResponse } from "@/types/getDeposit";
 import ExecuteStep from "./ExecuteStep";
 import type { DepositResponse } from "@/types/deposit";
-import { Loader2Icon } from "lucide-react";
+import { ChevronsDown, Loader2Icon } from "lucide-react";
 import GetDepositHL from "./GetDepositHL";
 import GetDeposiLpPool from "./GetDeposiLpPool";
 import TokenSelect from "./TokenSelect";
@@ -43,6 +43,7 @@ const Deposit = ({ poolData }: DepositProps) => {
       amount: "",
     },
   });
+
   const amount = watch("amount");
 
   useDebounce(
@@ -145,8 +146,9 @@ const Deposit = ({ poolData }: DepositProps) => {
 
             {!GetDepositQuotePending && getDepositQuote && (
               <>
-                <GetDepositHL getDepositQuote={getDepositQuote} />
-                <GetDeposiLpPool getDepositQuote={getDepositQuote} />
+                <ChevronsDown size={36} className="mx-auto" />
+                <GetDepositHL getDepositQuote={getDepositQuote} poolData={poolData} />
+                <GetDeposiLpPool getDepositQuote={getDepositQuote} poolData={poolData} />
               </>
             )}
 
@@ -169,7 +171,6 @@ const Deposit = ({ poolData }: DepositProps) => {
               </Button>
             )}
 
-            {/* TDOO :버튼 크기 변경 */}
             {!user && <Login buttonClass="w-full" buttonSize="default" buttonLabel="Please Login" />}
           </TabsContent>
         </Tabs>

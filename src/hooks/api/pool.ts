@@ -31,6 +31,15 @@ export interface PoolType {
   dex_version: string;
   margin_ratio: number;
   pool_created_at: string;
+  volume_1h_per_tvl: number;
+  volume_6h_per_tvl: number;
+  volume_24h_per_tvl: number;
+  fee_1h: number;
+  fee_6h: number;
+  fee_24h: number;
+  fee_1h_per_tvl_apr: number;
+  fee_6h_per_tvl_apr: number;
+  fee_24h_per_tvl_apr: number;
   snapshot_timestamp: string;
   pool_price: number;
   effective_apr: number;

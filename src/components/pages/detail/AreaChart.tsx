@@ -7,21 +7,18 @@ import {
   type ChartConfig,
 } from "@/components/ui/chart";
 import { Skeleton } from "@/components/ui/skeleton";
-import { usePoolHistoryQuery, type PoolHistoryChart, type PoolHistoryType } from "@/hooks/api/pool";
+import { usePoolHistoryQuery, type PoolHistoryType } from "@/hooks/api/pool";
 import { useEffect } from "react";
 import { toast } from "sonner";
 import dayjs from "dayjs";
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import { Card, CardContent } from "@/components/ui/card";
 
-type AprKey = "funding_apr" | "combined_apr" | "effective_apr";
-
-interface MergedHistoryRowType {
-  timestamp: string;
+type MergedPoint = {
+  date: string;
   funding_apr?: number;
-  combined_apr?: number;
   effective_apr?: number;
-}
+};
 
 interface PoolAreaChartProps {
   network?: string;
@@ -45,24 +42,52 @@ const chartConfig = {
 const PoolAreaChart = ({ network, address }: PoolAreaChartProps) => {
   const { data: poolHistory, isPending, status, error } = usePoolHistoryQuery(network, address);
 
-  // 히스토리 묶음
-  const mergeHistory = (poolHistory: Omit<PoolHistoryType, "network" | "poolAddress">): MergedHistoryRowType[] => {
-    const map = new Map<string, MergedHistoryRowType>();
+  const mergeHistory = (history: Omit<PoolHistoryType, "network" | "poolAddress">): MergedPoint[] => {
+    const byDate: Record<
+      string,
+      { fundingSum: number; fundingCount: number; effectiveSum: number; effectiveCount: number }
+    > = {};
 
-    const add = (arr: PoolHistoryChart[], key: AprKey) => {
+    const add = (arr: { timestamp: string; value: number }[], key: "funding" | "effective") => {
       arr.forEach(({ timestamp, value }) => {
-        if (!map.has(timestamp)) {
-          map.set(timestamp, { timestamp });
+        const date = dayjs(timestamp).format("YYYY-MM-DD");
+        if (!byDate[date]) {
+          byDate[date] = { fundingSum: 0, fundingCount: 0, effectiveSum: 0, effectiveCount: 0 };
         }
-        const row = map.get(timestamp)!;
-        row[key] = value;
+        if (key === "funding") {
+          byDate[date].fundingSum += value;
+          byDate[date].fundingCount += 1;
+        } else {
+          byDate[date].effectiveSum += value;
+          byDate[date].effectiveCount += 1;
+        }
       });
     };
 
-    add(poolHistory.funding_apr, "funding_apr");
-    add(poolHistory.effective_apr, "effective_apr");
+    add(history.funding_apr, "funding");
+    add(history.effective_apr, "effective");
 
-    return Array.from(map.values()).sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+    const points: MergedPoint[] = Object.keys(byDate)
+      .sort()
+      .map((date) => {
+        const d = byDate[date];
+        return {
+          date,
+          funding_apr: d.fundingCount ? d.fundingSum / d.fundingCount : undefined,
+          effective_apr: d.effectiveCount ? d.effectiveSum / d.effectiveCount : undefined,
+        };
+      });
+
+    if (points.length === 1) {
+      const only = points[0];
+      return [
+        { ...only, date: dayjs(only.date).subtract(1, "day").format("YYYY-MM-DD") },
+        only,
+        { ...only, date: dayjs(only.date).add(1, "day").format("YYYY-MM-DD") },
+      ];
+    }
+
+    return points;
   };
 
   useEffect(() => {
@@ -85,37 +110,38 @@ const PoolAreaChart = ({ network, address }: PoolAreaChartProps) => {
                 <stop offset="5%" stopColor="var(--color-desktop)" stopOpacity={0.8} />
                 <stop offset="95%" stopColor="var(--color-desktop)" stopOpacity={0.1} />
               </linearGradient>
-              <linearGradient id="combined_apr" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="var(--color-mobile)" stopOpacity={0.8} />
-                <stop offset="95%" stopColor="var(--color-mobile)" stopOpacity={0.1} />
-              </linearGradient>
               <linearGradient id="effective_apr" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor="var(--color-desktop)" stopOpacity={0.8} />
                 <stop offset="95%" stopColor="var(--color-desktop)" stopOpacity={0.1} />
               </linearGradient>
             </defs>
+
             <CartesianGrid strokeDasharray="3 3" />
+
             <XAxis
-              dataKey="timestamp"
+              dataKey="date"
               tickLine={false}
               axisLine={false}
               tickMargin={8}
               minTickGap={32}
-              tickFormatter={(value) => dayjs(value).format("MMM D, HH:mm")}
+              tickFormatter={(value) => dayjs(value).format("MMM D")}
             />
-            <YAxis
-              tickLine={false}
-              axisLine={false}
-              width={40}
-              domain={["dataMin", "dataMax"]}
-              allowDataOverflow={false}
+
+            <YAxis hide domain={["dataMin-1", "dataMax +1"]} allowDataOverflow={false} />
+
+            <Area dataKey="funding_apr" type="monotone" stackId="1" fill="url(#funding_apr)" stroke="var(--chart-1)" />
+            <Area
+              dataKey="effective_apr"
+              type="monotone"
+              stackId="1"
+              fill="url(#effective_apr)"
+              stroke="var(--chart-3)"
             />
-            <Area dataKey="funding_apr" type="monotone" fill="url(#funding_apr)" stroke="var(--chart-1)" />
-            <Area dataKey="effective_apr" type="monotone" fill="url(#effective_apr)" stroke="var(--chart-3)" />
+
             <ChartTooltip
               cursor={false}
               content={<ChartTooltipContent />}
-              labelFormatter={(value) => dayjs(value).format("YYYY/MM/DD HH:mm")}
+              labelFormatter={(value) => dayjs(value).format("YYYY-MM-DD")}
             />
             <ChartLegend content={<ChartLegendContent />} />
           </AreaChart>
