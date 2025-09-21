@@ -16,6 +16,7 @@ import GetDepositHL from "./GetDepositHL";
 import GetDeposiLpPool from "./GetDeposiLpPool";
 import TokenSelect from "./TokenSelect";
 import useTokenStore from "@/store/useTokenStore";
+import useCompleteStore from "@/store/useCompleteStore";
 
 interface DepositProps {
   poolData: PoolType;
@@ -23,6 +24,7 @@ interface DepositProps {
 
 const Deposit = ({ poolData }: DepositProps) => {
   const { wallets, user } = useTurnkey();
+  const setComplete = useCompleteStore((state) => state.setComplete);
   const selectToken = useTokenStore((state) => state.token);
 
   const {
@@ -102,11 +104,12 @@ const Deposit = ({ poolData }: DepositProps) => {
     }
   });
 
-  const onExecuteComplete = () => {
+  const onExecuteComplete = (fireworks: boolean) => {
     setIsExecuting(false);
     setDepositData(undefined);
     setValue("amount", "");
     setGetDepositQuote(undefined);
+    setComplete(fireworks);
   };
 
   return (

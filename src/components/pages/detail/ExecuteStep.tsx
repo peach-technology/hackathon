@@ -11,7 +11,7 @@ import { toast } from "sonner";
 
 interface ExecuteStepProps {
   depositData: DepositResponse;
-  onComplete: () => void;
+  onComplete: (fireworks: boolean) => void;
 }
 
 type StepStatus = "pending" | "active" | "completed" | "error";
@@ -167,7 +167,7 @@ const ExecuteStep = ({ depositData, onComplete }: ExecuteStepProps) => {
         } else {
           // 3초 후 완료 콜백 호출 (완료 상태를 보여주기 위해)
           setTimeout(() => {
-            onComplete();
+            onComplete(true);
             toast.success("All steps completed successfully!");
           }, 3000);
         }
@@ -300,7 +300,12 @@ const ExecuteStep = ({ depositData, onComplete }: ExecuteStepProps) => {
       )}
 
       {stepResults.some((r) => r.status === "error") && (
-        <Button onClick={onComplete} size="sm" variant="outline" className="text-white w-full cursor-pointer">
+        <Button
+          onClick={() => onComplete(false)}
+          size="sm"
+          variant="outline"
+          className="text-white w-full cursor-pointer"
+        >
           Reset
         </Button>
       )}
