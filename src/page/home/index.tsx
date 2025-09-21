@@ -50,7 +50,7 @@ const HomePage = () => {
   if (status === "error") return <p className="text-center">Error</p>;
 
   return (
-    <div className="overflow-hidden rounded-md space-y-5">
+    <div className="overflow-hidden rounded-md space-y-5 py-20 md:py-24">
       <div className="relative max-w-sm">
         <SearchIcon className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-500" size={20} />
         <Input
@@ -64,8 +64,7 @@ const HomePage = () => {
         <colgroup>
           <col className="w-[5%]" />
           <col className="w-[8%]" />
-          <col className="w-[8%]" />
-          <col className="w-[40%]" />
+          <col className="w-[50%]" />
         </colgroup>
 
         <TableHeader>
@@ -175,20 +174,12 @@ const columns: ColumnDef<PoolType>[] = [
     header: "Name",
     accessorKey: "pool_name",
     cell: ({ row }) => {
-      return `${row.original.token0_symbol} / ${row.original.token1_symbol}`;
+      return `${row.original.token0_symbol} / ${row.original.token1_symbol}  ${row.original.fee / 10000}%`;
     },
   },
 
   {
-    header: "Protocol",
-    accessorKey: "dex_version",
-    cell: ({ row }) => {
-      return row.getValue("dex_version");
-    },
-  },
-
-  {
-    accessorKey: "fee",
+    accessorKey: "volume_24h",
     header: ({ column }) => {
       return (
         <Button
@@ -196,14 +187,13 @@ const columns: ColumnDef<PoolType>[] = [
           className="p-0! cursor-pointer"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Fee
+          24H Volume
           <ArrowUpDownIcon />
         </Button>
       );
     },
     cell: ({ row }) => {
-      const fee = row.getValue("fee") as number;
-      return `${(fee / 10000).toFixed(1)}%`;
+      return `$${formatUSD(row.getValue("volume_24h"))}`;
     },
   },
 
@@ -225,22 +215,11 @@ const columns: ColumnDef<PoolType>[] = [
       return `$${formatUSD(row.getValue("reserve_in_usd"))}`;
     },
   },
+
   {
-    accessorKey: "volume_24h",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          className="p-0! cursor-pointer"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          24H Volume
-          <ArrowUpDownIcon />
-        </Button>
-      );
-    },
+    header: "Apr",
     cell: ({ row }) => {
-      return `$${formatUSD(row.getValue("volume_24h"))}`;
+      return `${(row.original.effective_apr + row.original.funding_apr).toFixed(2)}%`;
     },
   },
 ];

@@ -16,8 +16,8 @@ import {
 import PoolAreaChart from "@/components/pages/detail/AreaChart";
 import Deposit from "@/components/pages/detail/Deposit";
 import RollingCount from "@/components/common/Rolling";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useTurnkey } from "@turnkey/react-wallet-kit";
+import Position from "@/components/pages/detail/Position";
 
 const DetailPage = () => {
   const { network, address } = useParams();
@@ -31,7 +31,7 @@ const DetailPage = () => {
   if (status === "error") return <p>Error</p>;
 
   return (
-    <>
+    <div className="py-20 md:py-24">
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
@@ -69,7 +69,7 @@ const DetailPage = () => {
 
       <div className="md:flex gap-15 relative items-start mt-20 md:mt-30">
         <div className="flex-1 space-y-16 min-w-0">
-          <div className="grid grid-cols-2 md:flex md:flex-row justify-between gap-5 lg:gap-10 flex-wrap">
+          <div className="grid xs:grid-cols-2 md:flex md:flex-row justify-between gap-5 lg:gap-10 flex-wrap">
             <div className="bg-zinc-900 text-zinc-50 border-zinc-800 shadow-none space-y-2">
               <div className="text-xs font-medium text-zinc-400">TVL</div>
               {isPending ? (
@@ -80,16 +80,27 @@ const DetailPage = () => {
             </div>
 
             <div className="bg-zinc-900 text-zinc-50 border-zinc-800 shadow-none space-y-2">
-              <div className="text-xs font-medium text-zinc-400">Volume 1H</div>
-              {isPending ? <Skeleton className="h-[60px] w-[160px]" /> : <RollingCount amount={data?.volume_1h ?? 0} />}
-            </div>
-
-            <div className="bg-zinc-900 text-zinc-50 border-zinc-800 shadow-none space-y-2">
-              <div className="text-xs font-medium text-zinc-400">Fee</div>
+              <div className="text-xs font-medium text-zinc-400">Volume 24H</div>
               {isPending ? (
                 <Skeleton className="h-[60px] w-[160px]" />
               ) : (
-                <RollingCount symbol="percent" amount={data?.fee ?? 0} />
+                <RollingCount amount={data?.volume_24h ?? 0} />
+              )}
+            </div>
+
+            <div className="bg-zinc-900 text-zinc-50 border-zinc-800 shadow-none space-y-2">
+              <div className="text-xs font-medium text-zinc-400">Fee 24H</div>
+              {isPending ? <Skeleton className="h-[60px] w-[160px]" /> : <RollingCount amount={data?.fee_24h ?? 0} />}
+            </div>
+
+            <div className="bg-zinc-900 text-zinc-50 border-zinc-800 shadow-none space-y-2">
+              <div className="text-xs font-medium text-zinc-400">Total Apr</div>
+              {isPending ? (
+                <Skeleton className="h-[60px] w-[160px]" />
+              ) : (
+                <>
+                  <RollingCount symbol="none" amount={data?.funding_apr + data?.effective_apr} customSuffix="%" />
+                </>
               )}
             </div>
 
@@ -112,83 +123,10 @@ const DetailPage = () => {
                       >
                         Position
                       </TabsTrigger>
-                      <Separator orientation="vertical" />
-                      <TabsTrigger
-                        value="transaction"
-                        className="scroll-m-20 text-2xl font-semibold tracking-tight border-0 data-[state=active]:bg-transparent! cursor-pointer p-0"
-                      >
-                        Transaction
-                      </TabsTrigger>
                     </TabsList>
                     <TabsContent value="position" className="space-y-10">
-                      <Card className="bg-blue-500/15">
-                        <CardHeader>
-                          <CardTitle className="flex gap-5 items-center">
-                            <div className="rounded-lg border size-10"></div>
-                            <p>
-                              {data?.token0_symbol} / ${data?.token1_name}
-                            </p>
-                          </CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-3">
-                          <div className="grid grid-cols-2">
-                            <p className="text-muted-foreground">Share</p>
-                            <p className="text-right">qqqq</p>
-                          </div>
-                          <div className="grid grid-cols-2">
-                            <p className="text-muted-foreground">Share</p>
-                            <p className="text-right">qqqq</p>
-                          </div>
-                          <div className="grid grid-cols-2">
-                            <p className="text-muted-foreground">Share</p>
-                            <p className="text-right">qqqq</p>
-                          </div>
-                          <div className="grid grid-cols-2">
-                            <p className="text-muted-foreground">Share</p>
-                            <p className="text-right">qqqq</p>
-                          </div>
-                          <div className="grid grid-cols-2">
-                            <p className="text-muted-foreground">Share</p>
-                            <p className="text-right">qqqq</p>
-                          </div>
-                        </CardContent>
-                      </Card>
-                      <Card className="bg-red-500/15">
-                        <CardHeader>
-                          <CardTitle className="flex gap-5 items-center">
-                            <div className="rounded-lg border size-10"></div>
-                            <p>Hyperliquid</p>
-                          </CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-3">
-                          <div className="grid grid-cols-2">
-                            <p className="text-muted-foreground">Share</p>
-                            <p className="text-right">qqqq</p>
-                          </div>
-                          <div className="grid grid-cols-2">
-                            <p className="text-muted-foreground">Size</p>
-                            <p className="text-right">qqqq</p>
-                          </div>
-                          <div className="grid grid-cols-2">
-                            <p className="text-muted-foreground">Entry</p>
-                            <p className="text-right">qqqq</p>
-                          </div>
-                          <div className="grid grid-cols-2">
-                            <p className="text-muted-foreground">Current</p>
-                            <p className="text-right">qqqq</p>
-                          </div>
-                          <div className="grid grid-cols-2">
-                            <p className="text-muted-foreground">PnL</p>
-                            <p className="text-right">qqqq</p>
-                          </div>
-                          <div className="grid grid-cols-2">
-                            <p className="text-muted-foreground">Leverage</p>
-                            <p className="text-right">qqqq</p>
-                          </div>
-                        </CardContent>
-                      </Card>
+                      <Position poolData={data} />
                     </TabsContent>
-                    <TabsContent value="transaction"></TabsContent>
                   </Tabs>
                 </div>
               </>
@@ -206,7 +144,7 @@ const DetailPage = () => {
           {!isPending && <Deposit poolData={data} />}
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

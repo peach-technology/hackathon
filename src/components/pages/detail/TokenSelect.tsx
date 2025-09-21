@@ -9,6 +9,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useGetListNetworks } from "@/hooks/api/networks";
 import { useTokenListQuery, type TokenType } from "@/hooks/api/token";
 import { useGetWalletBalance } from "@/hooks/api/wallet";
 import useTokenStore from "@/store/useTokenStore";
@@ -19,9 +20,12 @@ import { useState } from "react";
 const TokenSelect = () => {
   const { data, isPending } = useTokenListQuery();
   const { data: balances } = useGetWalletBalance();
+  const { data: networks } = useGetListNetworks();
   const { token: selectToken, setToken } = useTokenStore();
 
   const [open, setOpen] = useState(false);
+
+  const selectNetwork = networks?.find((n) => n.id === selectToken.network);
 
   const handleSelect = (token: TokenType) => {
     setToken(token);
@@ -31,14 +35,14 @@ const TokenSelect = () => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" className="h-auto rounded-full justify-between items-center gap-5">
+        <Button className="h-auto rounded-full justify-between items-center gap-5 bg-background hover:bg-neutral-900 cursor-pointer">
           <div className="flex text-left items-center gap-2">
             <div className="size-6 rounded-full overflow-hidden">
               <img src={selectToken.logo} />
             </div>
             <div>
               <p className="text-muted-foreground">{selectToken.name}</p>
-              <p className="text-muted-foreground">{selectToken.network}</p>
+              <p className="text-muted-foreground">{selectNetwork?.name}</p>
             </div>
           </div>
           <ChevronRight />
@@ -61,8 +65,8 @@ const TokenSelect = () => {
             <div className="space-y-5">
               {data?.map((token) => {
                 const activeToken = selectToken.id === token.id;
-
                 const owned = balances?.find((b) => b.token.id === token.id);
+                const network = networks?.find((n) => n.id === token.network);
 
                 return (
                   <Button
@@ -78,7 +82,7 @@ const TokenSelect = () => {
                       <div>
                         <h4 className="text-lg">{token.name}</h4>
                         <div className="flex gap-2 text-muted-foreground text-xs">
-                          <p>{token.network}</p>
+                          <p>{network?.name}</p>
                           <p>{`${token.contract_address.slice(0, 8)}...${token.contract_address.slice(-8)}`}</p>
                         </div>
                       </div>

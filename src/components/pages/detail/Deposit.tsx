@@ -123,7 +123,7 @@ const Deposit = ({ poolData }: DepositProps) => {
           </TabsList>
 
           <TabsContent value="buy" className="space-y-5">
-            <div className="text-4xl border rounded-xl py-12 px-4">
+            <div className="text-4xl border rounded-xl py-12 px-4 bg-neutral-800">
               <div className="flex justify-between">
                 <input
                   inputMode="numeric"

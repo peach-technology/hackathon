@@ -21,10 +21,18 @@ const Header = () => {
   return (
     <header className="sticky top-0 z-50 w-full bg-neutral-800">
       <div className="mx-auto flex h-16 items-center justify-between px-4">
-        <div className="flex items-center space-x-4">
-          <div className="flsex items-center space-x-2">
+        <div className="flex items-center space-x-15">
+          <Link to="/" className="flex gap-2">
+            <img src="/logo.png" alt="" className="w-8" />
+            <span className="font-bold text-2xl">Huam</span>
+          </Link>
+
+          <div className="flex space-x-5 items-center">
             <Link to="/">
-              <span className="font-bold text-xl text-white">Huam</span>
+              <span className="font-medium">Pool</span>
+            </Link>
+            <Link to="/swap">
+              <span className="font-medium">Swap</span>
             </Link>
           </div>
         </div>

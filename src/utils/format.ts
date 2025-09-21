@@ -6,7 +6,7 @@ export const formatUSD = (num: number) => {
   } else if (num >= 1e3) {
     return (num / 1e3).toFixed(1) + "K";
   }
-  return num.toFixed(1);
+  return num.toFixed(2);
 };
 
 export function abbreviateUSD(num: number) {
@@ -25,7 +25,7 @@ export function abbreviateUSD(num: number) {
   }
 
   // 소수 1자리 고정
-  return { scaled: Number(scaled.toFixed(1)), suffix };
+  return { scaled: Number(scaled.toFixed(2)), suffix };
 }
 
 export const formatBalance = (num: string | number) => {
